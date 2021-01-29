@@ -1,0 +1,14 @@
+QScrollBar {
+     border: none;
+     background: #000000;
+     height: 2px;
+     width: 2px;
+     margin: 0px;
+}
+
+QScrollBar::handle{
+     background: #666666;
+     min-width: 10px;
+     min-height: 10px;
+}
+
