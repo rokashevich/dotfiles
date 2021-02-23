@@ -8,7 +8,4 @@ QScrollBar {
 
 QScrollBar::handle{
      background: #666666;
-     min-width: 10px;
-     min-height: 10px;
 }
-
