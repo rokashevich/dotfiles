@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Exec="/home/r/VSCode-linux-x64/code" --disable-gpu %F
+Name=VSCode
+Icon=/home/r/VSCode-linux-x64/resources/app/resources/linux/code.png
+Terminal=false
+Categories=Development;
