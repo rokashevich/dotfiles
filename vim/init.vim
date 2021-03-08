@@ -1,46 +1,33 @@
 " положить в ~/.config/nvim
+"vim +PlugClean
 call plug#begin('~/.vim/plugged')
 Plug 'preservim/nerdtree'
 Plug 'ryanoasis/vim-devicons'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'junegunn/fzf.vim'
-"Plug 'itchyny/lightline.vim'
+Plug 'dracula/vim'
 call plug#end()
 
-"vim +PlugClean
-"set termguicolors
-"colorscheme nord
+" COLORTHEME
+if (has("termguicolors"))
+  set termguicolors
+endif
+syntax enable
+colorscheme dracula
+
+" СТРОКА СОСТОЯНИЯ
+" Add (Neo)Vim's native statusline support.
+" NOTE: Please see `:h coc-status` for integrations with external plugins that
+" provide custom statusline: lightline.vim, vim-airline.
+"set statusline+=%F
+"set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+" Для lightline  
+"set noshowmode
 
 let g:NERDTreeShowHidden = 1
 let g:NERDTreeMinimalUI = 1
 let g:NERDTreeIgnore = []
 let g:NERDTreeStatusline = ''
 nnoremap <C-b> :NERDTreeToggle<CR>
-
-nnoremap <C-p> :FZF<CR>
-let g:fzf_action = {
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-s': 'split',
-  \ 'ctrl-v': 'vsplit'
-  \}
-
-" Для lightline  
-set noshowmode
-
-" TERMINAL
-" open new split panes to right and below
-set splitright
-set splitbelow
-" turn terminal to normal mode with escape
-tnoremap <Esc> <C-\><C-n>
-" start terminal in insert mode
-au BufEnter * if &buftype == 'terminal' | :startinsert | endif
-" open terminal on ctrl+n
-function! OpenTerminal()
-  split term://bash
-  resize 10
-endfunction
-nnoremap <c-n> :call OpenTerminal()<CR>
 
 " COC
 " TextEdit might fail if hidden is not set.
@@ -93,10 +80,6 @@ endfunction
 autocmd CursorHold * silent call CocActionAsync('highlight')
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 " Mappings for CoCList
 " Show all diagnostics.
 nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
