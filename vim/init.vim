@@ -1,10 +1,9 @@
 " положить в ~/.config/nvim
 "vim +PlugClean
 call plug#begin('~/.vim/plugged')
-Plug 'preservim/nerdtree'
-Plug 'ryanoasis/vim-devicons'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'dracula/vim'
+Plug 'puremourning/vimspector'
 call plug#end()
 
 " COLORTHEME
@@ -22,12 +21,6 @@ colorscheme dracula
 "set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 " Для lightline  
 "set noshowmode
-
-let g:NERDTreeShowHidden = 1
-let g:NERDTreeMinimalUI = 1
-let g:NERDTreeIgnore = []
-let g:NERDTreeStatusline = ''
-nnoremap <C-b> :NERDTreeToggle<CR>
 
 " COC
 " TextEdit might fail if hidden is not set.
