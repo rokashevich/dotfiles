@@ -13,6 +13,15 @@ endif
 syntax enable
 colorscheme dracula
 
+function FormatBuffer()
+   if &modified 
+     let cursor_pos = getpos('.')
+     :%!clang-format --style=Google
+     call setpos('.', cursor_pos)
+   endif
+endfunction
+autocmd BufWritePre *.h,*.hpp,*.c,*.cpp,*.vert,*.frag :call FormatBuffer()
+
 " СТРОКА СОСТОЯНИЯ
 " Add (Neo)Vim's native statusline support.
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
@@ -30,7 +39,7 @@ set nobackup
 set nowritebackup
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
-set signcolumn=yes
+set signcolumn=no
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
