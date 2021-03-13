@@ -22,6 +22,13 @@ function FormatBuffer()
 endfunction
 autocmd BufWritePre *.h,*.hpp,*.c,*.cpp,*.vert,*.frag :call FormatBuffer()
 
+" Переключаем раскладку в английский язык при переходе в командый режим.
+" Только для Gnome Shell!
+function SetUsLayout()
+	:silent !gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell --method org.gnome.Shell.Eval  "imports.ui.status.keyboard.getInputSourceManager().inputSources[0].activate()" 1>&2 >/dev/null
+endfunction
+autocmd InsertLeave * call SetUsLayout()
+
 " СТРОКА СОСТОЯНИЯ
 " Add (Neo)Vim's native statusline support.
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
