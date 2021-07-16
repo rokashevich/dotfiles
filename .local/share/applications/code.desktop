@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Exec="/home/r/VSCode-linux-x64/code" --disable-renderer-accessibility --disable-gpu %F
+Exec=/home/r/VSCode-linux-x64/code --enable-features=UseOzonePlatform --ozone-platform=wayland
 Name=VSCode
 Icon=/home/r/VSCode-linux-x64/resources/app/resources/linux/code.png
 Terminal=false
