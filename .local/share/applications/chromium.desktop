@@ -1,7 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Name=Chromium
-Exec=/usr/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland %U
+#Exec=/usr/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland %U
+Exec=/usr/bin/chromium
 StartupNotify=true
 Terminal=false
 Icon=chromium

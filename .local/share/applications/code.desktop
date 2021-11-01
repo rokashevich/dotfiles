@@ -1,6 +1,7 @@
 [Desktop Entry]
 Type=Application
-Exec=/home/r/VSCode-linux-x64/code --enable-features=UseOzonePlatform --ozone-platform=wayland
+#Exec=/home/r/VSCode-linux-x64/code --enable-features=UseOzonePlatform --ozone-platform=wayland
+Exec=/home/r/VSCode-linux-x64/code
 Name=VSCode
 Icon=/home/r/VSCode-linux-x64/resources/app/resources/linux/code.png
 Terminal=false
