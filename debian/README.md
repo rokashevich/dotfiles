@@ -9,5 +9,6 @@ apt install --no-install-recommends \
   gvfs-backends gvfs-fuse gnome-control-center gnome-power-manager mpv pipewire-audio-client-libraries \
   alsa-utils gedit gstreamer1.0-pulseaudio evince libasound2-plugins libpulsedsp pulseaudio \
   pulseaudio-module-bluetooth pulseaudio-utils gnome-font-viewer fonts-ubuntu apt-file mc \
-  tlp/bullseye-backports tlp-rdw/bullseye-backports curl xz-utils unzip python3-pip git gcc g++
+  tlp/bullseye-backports tlp-rdw/bullseye-backports curl xz-utils unzip python3-pip git gcc g++ \
+  fonts-noto-color-emoji
 ```
