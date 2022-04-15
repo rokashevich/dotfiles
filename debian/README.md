@@ -1,4 +1,4 @@
-h debian
+# debian
 
 ```
 wpa_supplicant -B -i INTERFACE -c <(wpa_passphrase SSID 'PASWORD!')
@@ -26,4 +26,14 @@ rm -rf /var/lib/docker /var/lib/containerd
 
 # Gnome
 gsettings set org.gnome.desktop.sound event-sounds false # disable system beep
+
+# Systemd
+systemctl list-unit-files
+systemctl disable wpa_supplicant.service
+systemctl disable systemd-timesyncd.service
+systemctl disable rsyslog.service syslog.socket
+
+# Cron
+for user in $(cut -f1 -d: /etc/passwd); do crontab -u $user -l; done
+systemctl disable cron.service anacron.service 
 ```
