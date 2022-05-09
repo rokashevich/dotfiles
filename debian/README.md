@@ -16,8 +16,7 @@ apt install --no-install-recommends \
   fonts-noto-color-emoji python3-virtualenv qbittorrent \
   ca-certificates curl gnupg lsb-release `#docker prerequisites` \
   sshpass \
-  libboost-all-dev `#temp` \
-  firefox-esr `# echo 'export MOZ_ENABLE_WAYLAND=1' >> ~/.profile; check: about:support, ctrl+f "Window Protocol"`
+  libboost-all-dev `#temp`
 
 # PyPI
 pip install youtube-dl
