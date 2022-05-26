@@ -16,6 +16,7 @@ apt install --no-install-recommends \
   fonts-noto-color-emoji python3-virtualenv qbittorrent \
   ca-certificates curl gnupg lsb-release `#docker prerequisites` \
   sshpass \
+  libdbus-glib-1-2 `#for tor` \
   libboost-all-dev `#temp`
 
 # PyPI
