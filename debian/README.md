@@ -17,6 +17,7 @@ apt install --no-install-recommends \
   ca-certificates curl gnupg lsb-release `#docker prerequisites` \
   sshpass \
   libdbus-glib-1-2 `#for tor` \
+  libio-socket-ssl-perl `#perl` \
   libboost-all-dev `#temp`
 
 # PyPI
