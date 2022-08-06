@@ -16,7 +16,6 @@ apt install --no-install-recommends \
   fonts-noto-color-emoji python3-virtualenv qbittorrent ffmpeg \
   ca-certificates curl gnupg lsb-release `#docker prerequisites` \
   sshpass \
-  libc6:i386 libgl1-mesa-glx:i386 `#for games, first do: dpkg --add-architecture i386` \
   libdbus-glib-1-2 `#for tor`
 
 # PyPI
