@@ -5,7 +5,7 @@ wpa_supplicant -B -i INTERFACE -c <(wpa_passphrase SSID 'PASWORD!')
 dhclient INTERFACE
 echo 'deb http://deb.debian.org/debian bullseye-backports main' >> /etc/apt/sources.list
 apt install --no-install-recommends \
-  network-manager gdm3 gnome-session gnome-settings-daemon gnome-terminal nautilus gnome-tweaks \
+  network-manager gdm3 gnome-session gnome-settings-daemon gnome-terminal nautilus gnome-tweaks man-db \
   gvfs-backends gvfs-fuse gnome-control-center gnome-power-manager mpv dosfstools exfat-utils \
   alsa-utils gedit gstreamer1.0-pulseaudio evince libasound2-plugins libpulsedsp pulseaudio \
   libcanberra-pulse `#gnome settings to work` \
