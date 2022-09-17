@@ -15,6 +15,10 @@ apt install \
 touch /etc/pipewire/media-session.d/with-pulseaudio
 cp /usr/share/doc/pipewire/examples/systemd/user/pipewire-pulse.* /etc/systemd/user/
 
+# Upgrade to SID
+echo deb https://mirror.yandex.ru/debian unstable main non-free contrib' >/etc/apt/sources.list
+apt update && apt dist-upgrade
+
 # PyPI
 pip install youtube-dl
 
