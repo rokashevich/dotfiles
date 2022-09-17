@@ -3,20 +3,17 @@
 ```
 wpa_supplicant -B -i INTERFACE -c <(wpa_passphrase SSID 'PASWORD!')
 dhclient INTERFACE
+
+apt install \
+  apt-file firefox-esr ffmpeg firmware-sof-signed fonts-ubuntu gdm3 git gnome-bluetooth gnome-control-center gnome-power-manager gnome-session gnome-terminal gnome-tweaks gpg gvfs-backends gvfs-fuse libspa-0.2-bluetooth mpv nautilus network-manager pipewire-audio-client-libraries python3-pip man-db ssh xz-utils
+
 echo 'deb http://deb.debian.org/debian bullseye-backports main' >> /etc/apt/sources.list
-apt install --no-install-recommends \
-  network-manager gdm3 gnome-session gnome-settings-daemon gnome-terminal nautilus gnome-tweaks man-db \
-  gvfs-backends gvfs-fuse gnome-control-center gnome-power-manager mpv dosfstools exfat-utils \
-  alsa-utils gedit gstreamer1.0-pulseaudio evince libasound2-plugins libpulsedsp pulseaudio \
-  libcanberra-pulse `#gnome settings to work` \
-  gnome-bluetooth bluez bluez-tools gnome-font-viewer fonts-ubuntu apt-file mc code yandex-browser-stable \
-  tlp/bullseye-backports tlp-rdw/bullseye-backports curl xz-utils unzip python3-pip git remmina remmina-plugin-vnc remmina-plugin-rdp \
-  pkg-config strace gcc g++ cmake clang-format ninja-build `#dev` \
-  libegl-dev libgles-dev libwayland-dev libxext-dev `#opengl` \
-  fonts-noto-color-emoji python3-virtualenv qbittorrent ffmpeg \
-  ca-certificates curl gnupg lsb-release `#docker prerequisites` \
-  sshpass \
-  libdbus-glib-1-2 `#for tor`
+apt install \
+  tlp/bullseye-backports tlp-rdw/bullseye-backports linux-image-amd64/bullseye-backports
+ 
+# https://wiki.debian.org/PipeWire
+touch /etc/pipewire/media-session.d/with-pulseaudio
+cp /usr/share/doc/pipewire/examples/systemd/user/pipewire-pulse.* /etc/systemd/user/
 
 # PyPI
 pip install youtube-dl
