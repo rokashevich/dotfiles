@@ -18,6 +18,7 @@ cp /usr/share/doc/pipewire/examples/systemd/user/pipewire-pulse.* /etc/systemd/u
 # Upgrade to SID
 echo deb https://mirror.yandex.ru/debian unstable main non-free contrib' >/etc/apt/sources.list
 apt update && apt dist-upgrade
+rm -rf /etc/pipewire # больше не нужен
 
 # PyPI
 pip install youtube-dl
