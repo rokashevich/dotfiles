@@ -1,0 +1,34 @@
+syntax on
+set laststatus=2
+set termguicolors
+set statusline=%f
+
+set showtabline=2
+set hidden
+hi User1 cterm=bold ctermfg=green ctermbg=black
+hi User2 cterm=none ctermfg=white ctermbg=black
+function! MyTabLine()
+    let l:blist = getbufinfo({'bufloaded': 1, 'buflisted': 1})
+    let result = ""
+    for l:item in l:blist
+        if empty(l:item.name) || l:item.hidden
+           let result .= "%#User1#"
+           let result .= l:item.bufnr
+           let result .= "%#User2#"
+           let result .= split(l:item.name,"/")[-1]
+        endif
+    endfor
+    return result
+endfunction
+set tabline=%!MyTabLine()
+
+function! SplitReuse()
+  if winnr() == winnr('$') && winnr() == 1
+    :Vexplore!
+  else  
+    :Explore
+  endif
+  echo winnr()." ".winnr('$')
+endfunction
+nnoremap <leader>ee <ESC>:call SplitReuse()<CR>
+
