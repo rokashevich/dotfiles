@@ -28,7 +28,6 @@ function! SplitReuse()
   else  
     :Explore
   endif
-  echo winnr()." ".winnr('$')
 endfunction
 nnoremap <leader>ee <ESC>:call SplitReuse()<CR>
 
