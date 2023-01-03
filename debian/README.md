@@ -19,8 +19,8 @@ $ apt install \
   linux-headers-amd64 \
   libspa-0.2-bluetooth pipewire-audio-client-libraries \
   ffmpeg python3-pip \
-  firefox-esr mpv \
-  cmake clang clang-format make ninja-build \
+  firefox-esr mpv remmina-plugin-vnc remmina-plugin-rdp \
+  cmake clang clang-format make ninja-build gdb \
   libgles-dev libxext-dev libboost-dev libboost-thread-dev
 ```
 ### Обновление некоторых пакетов из backports
@@ -60,4 +60,9 @@ systemctl disable rsyslog
 for user in $(cut -f1 -d: /etc/passwd); do crontab -u $user -l; done
 systemctl disable cron.service anacron.service
 
+```
+
+## Генерация списка установленных файлов
+```
+dpkg -l|awk '{print $2}'|sort > all_packages.txt
 ```
