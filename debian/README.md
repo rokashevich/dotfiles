@@ -69,6 +69,19 @@ dpkg -l|awk '{print $2}'|sort > all_packages.txt
 # tw89
 Драйвер https://packages.debian.org/ru/sid/all/firmware-realtek/download
 ```
-apt install openssh-server tmux apt-file vbetool man-db lm-sensors strace hwinfo fbi mc btrfs-progs
-echo "1" > /sys/class/graphics/fb0/blank
+$ cat /etc/rc.local 
+#!/bin/bash
+wpa_supplicant -B -i wlan0 -c <(wpa_passphrase r 'PASSWORD')
+sleep 10
+dhclient wlan0
+$ systemctl start rc-local
+$ apt install openssh-server tmux apt-file vbetool man-db lm-sensors strace hwinfo fbi mc btrfs-progs
+$ echo "1" > /sys/class/graphics/fb0/blank
+$ systemctl edit getty@tty1
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin root --noclear %I 38400 linux
+$ systemctl enable getty@tty1.service
+$ dpkg-reconfigure locales
+$ dpkg-reconfigure -plow console-setup
 ```
