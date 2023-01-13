@@ -84,4 +84,9 @@ ExecStart=-/sbin/agetty --autologin root --noclear %I 38400 linux
 $ systemctl enable getty@tty1.service
 $ dpkg-reconfigure locales
 $ dpkg-reconfigure -plow console-setup
+$ mkfs.btrfs -L data -f /dev/mmcblk1p1
+$ cat /etc/fstab
+...
+/dev/mmcblk1p1  /data btrfs  defaults,compress-force=zstd:15  0  0
+...
 ```
