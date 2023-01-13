@@ -66,3 +66,9 @@ systemctl disable cron.service anacron.service
 ```
 dpkg -l|awk '{print $2}'|sort > all_packages.txt
 ```
+# tw89
+Драйвер https://packages.debian.org/ru/sid/all/firmware-realtek/download
+```
+apt install openssh-server tmux apt-file vbetool man-db lm-sensors strace hwinfo fbi mc btrfs-progs
+echo "1" > /sys/class/graphics/fb0/blank
+```
