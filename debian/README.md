@@ -69,26 +69,26 @@ dpkg -l|awk '{print $2}'|sort > all_packages.txt
 # tw89
 Драйвер https://packages.debian.org/ru/sid/all/firmware-realtek/download
 ```
-$ cat /etc/rc.local 
+# cat /etc/rc.local 
 #!/bin/bash
 wpa_supplicant -B -i wlan0 -c <(wpa_passphrase r 'PASSWORD')
 sleep 10
 dhclient wlan0
-$ systemctl start rc-local
-$ apt install openssh-server tmux apt-file vbetool man-db lm-sensors strace hwinfo fbi mc btrfs-progs
-$ echo "1" > /sys/class/graphics/fb0/blank
+# systemctl start rc-local
+# apt install openssh-server tmux apt-file vbetool man-db lm-sensors strace hwinfo fbi mc btrfs-progs git
+# echo "1" > /sys/class/graphics/fb0/blank
 sed 's/#NAutoVTs=6/NAutoVTs=1/' -i /etc/systemd/logind.conf
-$ systemctl edit getty@tty1
+# systemctl edit getty@tty1
 [Service]
 ExecStart=
 ExecStart=-/sbin/agetty --autologin root --noclear %I 38400 linux
-$ systemctl enable getty@tty1.service
-$ dpkg-reconfigure locales
-$ dpkg-reconfigure -plow console-setup
-$ mkfs.btrfs -L data -f /dev/mmcblk1p1
-$ cat /etc/fstab
+# systemctl enable getty@tty1.service
+# dpkg-reconfigure locales
+# dpkg-reconfigure -plow console-setup
+# mkfs.btrfs -L data -f /dev/mmcblk1p1
+# cat /etc/fstab
 ...
 /dev/mmcblk1p1  /data btrfs  defaults,compress-force=zstd:15  0  0
 ...
-$ systemctl disable apparmor bluetooth dbus console-setup cron keyboard-setup rsyslog systemd-journal-flush systemd-journald
+# systemctl disable apparmor bluetooth dbus console-setup cron keyboard-setup rsyslog systemd-journal-flush systemd-journald
 ```
