@@ -16,6 +16,7 @@ $ apt install \
   fonts-ubuntu gdm3 gedit gnome-bluetooth gnome-control-center \
   gnome-power-manager gnome-session gnome-terminal gnome-tweaks \
   gvfs-backends gvfs-fuse nautilus network-manager linux-image-amd6 \
+  file-roller \
   linux-headers-amd64 \
   libspa-0.2-bluetooth pipewire-audio-client-libraries \
   ffmpeg python3-pip \
