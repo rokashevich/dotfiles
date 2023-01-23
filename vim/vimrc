@@ -1,4 +1,5 @@
 syntax on "подстветка синтаксиса очевидно
 set number relativenumber "относительная нумерация строк
 set cc=81,101 "colorcolumn вертикальная линейка
+set mouse=a
 
