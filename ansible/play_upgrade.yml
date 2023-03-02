@@ -1,0 +1,27 @@
+---
+- name: Update/Upgrade
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+  - name: Debian
+    when: ansible_facts.distribution == "Debian"
+    block:
+      - apt:
+          update_cache: yes
+          upgrade: yes
+          autoremove: yes
+          clean: yes
+        register: r
+      - debug:
+          msg: "{{r.stdout}}"
+
+  - name: Alpine
+    when: ansible_facts.distribution == "Alpine"
+    block:
+    - apk:
+        update_cache: true
+        upgrade: true
+      register: r
+    - debug:
+        msg: "{{r.stdout}}"

@@ -1,0 +1,25 @@
+---
+- name: Базовая настройка свежезасетапленых линуксов (у них должен быть sshd!)
+  hosts: home:&linux
+  become: true
+  gather_facts: true
+  tasks:
+    - when: ansible_facts.distribution == "Debian"
+      block:
+      - copy:
+          content: |
+            APT::Install-Recommends "0";
+            APT::Install-Suggests "0";
+          dest: /etc/apt/apt.conf
+    - when: ansible_facts.distribution == "Alpine"
+      block:
+      - apk:
+          name: "{{item}}"
+        loop:
+        -  avahi
+      - service:
+          name: "{{item}}"
+          enabled: true
+          state: started
+        loop:
+          - avahi-daemon

@@ -1,0 +1,143 @@
+---
+- name: Установка и запуск JupyterLab
+  hosts: all
+  gather_facts: yes
+  become: true
+  vars:
+    sandbox: "{{ansible_env.HOME}}/ansible/jupyterlab"
+  tasks:
+  - name: Пререквизиты
+    block:
+    - name: Общие
+      block:
+      - name: >
+          Проверяем, что существует 127.0.0.1, т.к. jupyter биндит на него
+          сокет, а в PostmarketOS например, в профиле none, локальный интерфейс
+          отсутствует по умолчанию!
+        command:
+          # Однократно(-c1) пингуем 127.0.0.1 с максимальным ожиданем 1сек(-w1)
+          cmd: ping -c1 -w1 127.0.0.1
+    - name: Для Debian
+      when: ansible_facts.distribution == "Debian"
+      block:
+      - apt:
+          name: "{{item}}"
+          state: present
+        loop:
+        - python3-virtualenv
+        - python3-pip
+      - name: Активация сервиса
+        systemd:
+          name: jupyterlab
+          enabled: true
+          daemon_reload: "{{service_file.changed|default(true)}}"
+      - name: Перезапуск сервиса если файл сервиса изменён
+        when: service_file.changed|default(true)
+        systemd:
+          name: jupyterlab
+          state: restarted
+      - name: Оставление сервиса в запущенном состоянии
+        when: not service_file.changed|default(true)
+        systemd:
+          name: jupyterlab
+          state: started
+    - name: Для Alpine
+      when: ansible_facts.distribution == "Alpine"
+      block:
+      - apk:
+          name: "{{item}}"
+          state: present
+        loop:
+        - py3-pip
+        - py3-virtualenv
+        - py3-psutil
+        - py3-cffi
+        - nftables
+        - nftables-openrc
+  - name: Установка pip-окружения
+    pip:
+      name: "{{item}}"
+      virtualenv: "{{sandbox}}"
+      virtualenv_site_packages: true
+    loop:
+    - "{% if ansible_facts.distribution == 'Alpine' %} jupyterlab==4.0.0a34 {% else %} jupyterlab {% endif %}"
+  - name: Создание файла системного сервиса
+    block:
+    - name: Systemd
+      when: ansible_facts.distribution == "Debian"
+      copy:
+        content: |
+          [Unit]
+          Description=JupyterLab Service
+          After=network.target
+          [Service]
+          Type=simple
+          Restart=always
+          User={{ansible_env.USER}}
+          WorkingDirectory={{sandbox}}
+          ExecStart={{sandbox}}/bin/jupyter-lab --ip='0.0.0.0' --port=8080 --LabApp.token='' --allow-root --no-browser
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/jupyterlab.service
+      register: service_file
+    - name: OpenRC
+      when: ansible_facts.distribution == "Alpine"
+      copy:
+        content: |
+          #!/sbin/openrc-run
+          name=jupyterlab
+          command="{{sandbox}}/bin/jupyter-lab"
+          command_args="--ip='0.0.0.0' --port=8080 --LabApp.token='' --allow-root --no-browser"
+          command_user="{{ansible_env.USER}}"
+          pidfile="/run/jupyterlab.pid"
+          command_background="yes"
+        dest: /etc/init.d/jupyterlab
+        mode: "0755"
+      register: service_file
+  - name: Активация сервиса jupyterlab
+    service:
+      name: jupyterlab
+      enabled: true
+      state: restarted
+  - name: Переадресация с :80 на :8080 и активация nftables
+    block:
+    - shell: |
+        nft flush ruleset
+        nft add table ip nat_jupyterlab
+        nft -- add chain ip nat_jupyterlab prerouting { type nat hook prerouting priority 0 \; }
+        nft add rule ip nat_jupyterlab prerouting tcp dport 80 redirect to :8080
+        nft list ruleset > /etc/nftables.nft
+    - service:
+        name: nftables
+        enabled: true
+        state: started
+  - name: Удаление Jupyterlab и следов
+    block:
+    - apk:
+        name: "{{item}}"
+        state: removed
+      loop:
+      - py3-pip
+      - py3-virtualenv
+      - py3-psutil
+      - py3-cffi
+      - nftables
+      - nftables-openrc
+    - service:
+        name: "{{item}}"
+        enabled: false
+        state: stopped
+      loop:
+      - nftables
+      - jupyterlab
+    - file:
+        path: "{{item}}"
+        state: absent
+      loop:
+      - /etc/init.d/jupyterlab
+      - "{{sandbox}}"
+      - "{{ansible_env.HOME}}/.ipython"
+      - "{{ansible_env.HOME}}/.jupyter"
+      - "{{ansible_env.HOME}}/.local/share/jupyter"
+      - "{{ansible_env.HOME}}/.local/share/virtualenv"
+    tags: [never, delete]
