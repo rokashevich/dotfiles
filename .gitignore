@@ -1,1 +1,2 @@
 ansible/secrets.yml
+ansible/play_dummy.yml

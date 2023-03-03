@@ -1,0 +1,72 @@
+---
+- name: Настройка домашних линуксов
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+# Первичная настройка, когда компьютер только засетаплен: есть ip, есть sshd,
+# есть что-то из sudo/su/doas - включает в себя:
+# - установку avahi для публикации hostname по mdns;
+# - настроку некоторых конфигов.
+    - name: Базовая настройка по ip/ssh
+      block:
+      - when: ansible_facts.distribution == "Debian"
+        block:
+        - copy:
+            content: |
+              APT::Install-Recommends "0";
+              APT::Install-Suggests "0";
+            dest: /etc/apt/apt.conf
+        - apt:
+            name: "{{item}}"
+          loop:
+          - avahi-daemon
+        - systemd:
+            name: avahi-daemon
+            enabled: true
+            state: started
+      - when: ansible_facts.distribution == "Alpine"
+        block:
+        - apk:
+            name: "{{item}}"
+          loop:
+          -  avahi
+        - service:
+            name: "{{item}}"
+            enabled: true
+            state: started
+          loop:
+            - avahi-daemon
+      tags: [initial, never]
+# После того как базовая настройка произведена и компьютер доступен по hostname
+# через mdns компьютер добавляется в inventory (hosts.yml) и ему выставляется
+# назначение (server, desktop) и в этой секции это назначение настраивается.
+    - name: Настройка в зависимости от роли
+      block:
+      - when: purpose == "server" and ansible_facts.distribution == "Alpine"
+        block:
+        - apk:
+            name: "{{item}}"
+          loop:
+            - mc
+            - tmux
+      - when: purpose == "server" and ansible_facts.distribution == "Debian"
+        block:
+        - apt:
+            name: "{{item}}"
+          loop:
+            - mc
+            - tmux
+      - when: purpose == "desktop"
+        block:
+        - apt:
+            name: "{{item}}"
+          loop: [apt-file, firmware-sof-signed, git, gpg, man-db, xz-utils,
+          fonts-ubuntu, gdm3, gedit, gnome-bluetooth, gnome-control-center,
+          gnome-power-manager, gnome-session, tilix, gnome-tweaks,
+          gvfs-backends, gvfs-fuse, nautilus, network-manager, file-roller,
+          libspa-0.2-bluetooth, pipewire-audio-client-libraries,
+          ffmpeg, python3-pip, firefox-esr, mpv, remmina-plugin-vnc,
+          remmina-plugin-rdp, cmake, clang, clang-format, make, ninja-build,
+          gdb, libgles-dev, libxext-dev, libboost-dev, libboost-thread-dev]
+      tags: [purpose, never]
