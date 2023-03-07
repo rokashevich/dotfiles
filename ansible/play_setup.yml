@@ -69,4 +69,7 @@
           ffmpeg, python3-pip, firefox-esr, mpv, remmina-plugin-vnc,
           remmina-plugin-rdp, cmake, clang, clang-format, make, ninja-build,
           gdb, libgles-dev, libxext-dev, libboost-dev, libboost-thread-dev]
+        - pop:
+            name: "{{item}}"
+          loop: ["yt-dlp", "pdfCropMargins"]
       tags: [purpose, never]
