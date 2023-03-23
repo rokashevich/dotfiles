@@ -1,7 +1,6 @@
 ---
 - name: Настройка домашних линуксов
   hosts: all
-  become: true
   gather_facts: true
   tasks:
 # Первичная настройка, когда компьютер только засетаплен: есть ip, есть sshd,
@@ -11,6 +10,7 @@
     - name: Базовая настройка по ip/ssh
       block:
       - when: ansible_facts.distribution == "Debian"
+        become: true
         block:
         - copy:
             content: |
@@ -26,6 +26,7 @@
             enabled: true
             state: started
       - when: ansible_facts.distribution == "Alpine"
+        become: true
         block:
         - apk:
             name: "{{item}}"
@@ -63,13 +64,40 @@
             name: "{{item}}"
           loop: [apt-file, firmware-sof-signed, git, gpg, man-db, xz-utils,
           fonts-ubuntu, gdm3, gedit, gnome-bluetooth, gnome-control-center,
-          gnome-power-manager, gnome-session, tilix, gnome-tweaks,
+          gnome-power-manager, gnome-session, gnome-terminal, gnome-tweaks,
           gvfs-backends, gvfs-fuse, nautilus, network-manager, file-roller,
           libspa-0.2-bluetooth, pipewire-audio-client-libraries,
           ffmpeg, python3-pip, firefox-esr, mpv, remmina-plugin-vnc,
           remmina-plugin-rdp, cmake, clang, clang-format, make, ninja-build,
           gdb, libgles-dev, libxext-dev, libboost-dev, libboost-thread-dev]
-        - pop:
+        - pip:
             name: "{{item}}"
           loop: ["yt-dlp", "pdfCropMargins"]
+        - name: With user permissions
+          become: false
+          block:
+          - name: Kubernetes
+            vars:
+            - bin: "{{ansible_env.HOME}}/bin"
+            block:
+            - uri:
+                url: https://storage.googleapis.com/kubernetes-release/release/stable.txt
+                return_content: true
+              register: version
+            - set_fact:
+                download_url: >
+                  curl -LO https://storage.googleapis.com/kubernetes-release/release/{{version.content}}/bin/linux/amd64/kubectl
+            - lineinfile:
+                path: "{{bin}}/kubernetes.url"
+                line: "{{download_url}}"
+                regexp: '.*'
+                create: true
+              register: download_url_status
+            - when: download_url_status.changed
+              get_url:
+                url: "https://storage.googleapis.com/kubernetes-release/release/v1.26.3/bin/linux/amd64/kubectl"
+                dest: "{{bin}}/kubectl"
+                mode: 0755
+
+
       tags: [purpose, never]
