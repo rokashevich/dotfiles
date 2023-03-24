@@ -1,0 +1,59 @@
+---
+- hosts: all
+  gather_facts: true
+  vars:
+    sandbox: "{{ansible_env.HOME}}/jenkins"
+  tasks:
+  - when: ansible_facts.distribution == "Debian"
+    block:
+    - uri:
+        url: https://www.jenkins.io/download
+        return_content: true
+      register: web_page
+    - set_fact:
+        download_url: "{{ web_page.content | regex_search('https://get.jenkins.io/war/[0-9.]+/jenkins.war') }}"
+    - file:
+        path: "{{sandbox}}"
+        state: directory
+    - lineinfile:
+        path: "{{sandbox}}/download_url"
+        line: "{{download_url}}"
+        regexp: '.*'
+        create: true
+      register: download_url_status
+    - when: download_url_status.changed
+      block:
+      - get_url:
+          url: "{{download_url}}"
+          dest: "{{ansible_env.HOME}}/jenkins/jenkins.war"
+        notify: start/restart service
+    - become: true
+      block:
+      - apt:
+          name: "{{item}}"
+        loop:
+        - default-jre
+        - git
+        - g++
+        - cmake
+      - copy:
+          content: |
+            [Unit]
+            Description=Jenkins Service
+            After=network.target
+            [Service]
+            Type=simple
+            Restart=always
+            User={{ansible_env.USER}}
+            WorkingDirectory={{sandbox}}
+            ExecStart=java -jar {{sandbox}}/jenkins.war --httpPort=8080
+            [Install]
+            WantedBy=multi-user.target
+          dest: /etc/systemd/system/jenkins.service
+        notify: start/restart service
+  handlers:
+  - name: start/restart service
+    become: true
+    systemd:
+      name: jenkins
+      state: restarted
