@@ -80,24 +80,45 @@
             vars:
             - bin: "{{ansible_env.HOME}}/bin"
             block:
-            - uri:
-                url: https://storage.googleapis.com/kubernetes-release/release/stable.txt
-                return_content: true
-              register: version
-            - set_fact:
-                download_url: >
-                  curl -LO https://storage.googleapis.com/kubernetes-release/release/{{version.content}}/bin/linux/amd64/kubectl
-            - lineinfile:
-                path: "{{bin}}/kubernetes.url"
-                line: "{{download_url}}"
-                regexp: '.*'
-                create: true
-              register: download_url_status
-            - when: download_url_status.changed
-              get_url:
-                url: "https://storage.googleapis.com/kubernetes-release/release/v1.26.3/bin/linux/amd64/kubectl"
-                dest: "{{bin}}/kubectl"
-                mode: 0755
+            - name: kubectl
+              block:
+              - uri:
+                  url: https://storage.googleapis.com/kubernetes-release/release/stable.txt
+                  return_content: true
+                register: version
+              - set_fact:
+                  download_url: >
+                    https://storage.googleapis.com/kubernetes-release/release/{{version.content}}/bin/linux/amd64/kubectl
+              - lineinfile:
+                  path: "{{bin}}/kubectl.url"
+                  line: "{{download_url}}"
+                  regexp: '.*'
+                  create: true
+                register: download_url_status
+              - when: download_url_status.changed
+                get_url:
+                  url: "{{download_url}}"
+                  dest: "{{bin}}/kubectl"
+                  mode: 0755
+            - name: minikube
+              block:
+                - shell:
+                    cmd: >
+                      curl --silent https://api.github.com/repos/kubernetes/minikube/releases/latest
+                      |jq -r '.assets[] | select(.name == "minikube-linux-amd64").browser_download_url'
+                  register: download_url
+                - set_fact:
+                    download_url: "{{download_url.stdout}}"
+                - lineinfile:
+                    path: "{{bin}}/minikube.url"
+                    line: "{{download_url}}"
+                    regexp: '.*'
+                    create: true
+                  register: download_url_status
+                - when: download_url_status.changed
+                  get_url:
+                    url: "{{download_url}}"
+                    dest: "{{bin}}/minikube"
+                    mode: 0755
 
-
-      tags: [purpose, never]
+      tags: [purpose, never] # чтобы случайно не запустить
