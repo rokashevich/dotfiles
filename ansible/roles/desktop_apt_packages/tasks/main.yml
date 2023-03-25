@@ -1,0 +1,43 @@
+- name: Пакеты, которые мне по-любому нужны
+  apt:
+    name: "{{item}}"
+  loop:
+  - apt-file
+  - clang
+  - clang-format
+  - cmake
+  - ffmpeg
+  - file-roller
+  - firefox-esr
+  - firmware-sof-signed
+  - fonts-noto-color-emoji # для иконок
+  - fonts-ubuntu # ради ubuntu mono
+  - gdb
+  - gdm3
+  - gedit
+  - git
+  - gnome-bluetooth
+  - gnome-control-center
+  - gnome-power-manager
+  - gnome-session
+  - gnome-terminal
+  - gnome-tweaks
+  - gpg
+  - gvfs-backends
+  - gvfs-fuse
+  - libboost-dev
+  - libboost-thread-dev
+  - libgles-dev
+  - libspa-0.2-bluetooth
+  - libxext-dev
+  - make
+  - man-db
+  - mpv
+  - nautilus
+  - network-manager
+  - ninja-build
+  - pipewire-audio-client-libraries
+  - python3-pip
+  - remmina-plugin-rdp
+  - remmina-plugin-vnc
+  - xz-utils
