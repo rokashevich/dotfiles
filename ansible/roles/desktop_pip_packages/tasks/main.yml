@@ -1,0 +1,5 @@
+- pip:
+    name: "{{item}}"
+  loop:
+  - yt-dlp # выкачивать с юутба
+  - pdfCropMargins # обрезать поля у pdf-ок
