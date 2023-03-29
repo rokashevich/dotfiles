@@ -51,6 +51,34 @@
             WantedBy=multi-user.target
           dest: /etc/systemd/system/jenkins.service
         notify: start/restart service
+      - block:
+        # для удаления надо systemctl reset-failed и проверять есть ли сервис
+        - name: disable & stop the service
+          systemd:
+            name: jenkins
+            enabled: false
+            state: stopped
+        - name: remove files
+          file:
+            path: "{{item}}"
+            state: absent
+          loop:
+          - "{{sandbox}}"
+          - /etc/systemd/system/jenkins.service
+          - "{{ansible_env.HOME}}/.java"
+          - "{{ansible_env.HOME}}/.jenkins"
+          - "{{ansible_env.HOME}}/.groovy"
+          - "{{ansible_env.HOME}}/.gitconfig"
+        - name: remove apt packages
+          apt:
+            name: "{{item}}"
+            state: absent
+          loop:
+          - default-jre
+          - git
+          - g++
+          - cmake
+        tags: [never, cleanup]
   handlers:
   - name: start/restart service
     become: true
