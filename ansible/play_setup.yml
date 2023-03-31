@@ -60,6 +60,6 @@
             - tmux
       - when: purpose == "desktop"
         block:
-        - {include_role: {name: desktop_portable_apps}, vars: {sandbox: "{{ansible_env.HOME}}/bin"}}
-        - include_role: name=desktop_apt_packages
-        - include_role: name=desktop_pip_packages
+        - {include_role: {name: desktop_portable_install}, vars: {sandbox: "{{ansible_env.HOME}}/bin"}}
+        - include_role: name=desktop_apt_install
+        - include_role: name=desktop_apt_install
