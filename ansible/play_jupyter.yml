@@ -1,3 +1,5 @@
+# Устаревший, проще:
+# docker run --rm -it -p 80:8888 -v "${PWD}":/home/jovyan/work jupyter/base-notebook:latest start-notebook.sh --LabApp.token='' --ServerApp.disable_check_xsrf=True
 ---
 - name: Установка и запуск JupyterLab
   hosts: all
