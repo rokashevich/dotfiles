@@ -42,6 +42,10 @@
       - apk:
           name:
           - avahi
+          - curl
+          - grep
+          - sed
+          - procps
       - service:
           name: "{{item}}"
           enabled: true
