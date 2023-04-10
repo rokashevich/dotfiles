@@ -1,0 +1,11 @@
+---
+- name: Get the destination info
+  stat:
+    path: "{{ dest }}"
+  register: file_info
+
+- name: Copy/Overwrite the destination only if it is not a symlink
+  copy:
+    src: "{{ src }}"
+    dest: "{{ dest }}"
+  when: sym.stat.islnk is not defined or sym.stat.islnk == False

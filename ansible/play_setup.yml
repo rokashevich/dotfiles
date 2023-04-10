@@ -3,42 +3,59 @@
   hosts: all
   gather_facts: true
   tasks:
+  - name: Предварительная локальная выкачка всего что понадобится далее
+    block:
+    - name: В кач-ве рабочего каталога используем ~/ansible
+      local_action:
+        module: file
+        path: ~/ansible
+        state: directory
+    - name: Качаем tmux.conf
+      local_action:
+        module: get_url
+        url: "https://raw.githubusercontent.com/rokashevich/dotfiles/master/tmux.conf"
+        dest: "~/ansible/tmux.conf"
 # Первичная настройка, когда компьютер только засетаплен: есть ip, есть sshd,
 # есть что-то из sudo/su/doas - включает в себя:
 # - установку avahi для публикации hostname по mdns;
 # - настроку некоторых конфигов.
-    - name: Базовая настройка по ip/ssh
+  - name: Базовая настройка по ip/ssh
+    block:
+    - when: ansible_facts.distribution == "Debian"
+      become: true
       block:
-      - when: ansible_facts.distribution == "Debian"
-        become: true
-        block:
-        - copy:
-            content: |
-              APT::Install-Recommends "0";
-              APT::Install-Suggests "0";
-            dest: /etc/apt/apt.conf
-        - apt:
-            name: "{{item}}"
-          loop:
+      - copy:
+          content: |
+            APT::Install-Recommends "0";
+            APT::Install-Suggests "0";
+          dest: /etc/apt/apt.conf
+      - apt:
+          name:
           - avahi-daemon
-        - systemd:
-            name: avahi-daemon
-            enabled: true
-            state: started
-      - when: ansible_facts.distribution == "Alpine"
-        become: true
-        block:
-        - apk:
-            name: "{{item}}"
-          loop:
-          -  avahi
-        - service:
-            name: "{{item}}"
-            enabled: true
-            state: started
-          loop:
-            - avahi-daemon
-      tags: [initial, never]
+      - systemd:
+          name: avahi-daemon
+          enabled: true
+          state: started
+    - when: ansible_facts.distribution == "Alpine"
+      become: true
+      block:
+      - apk:
+          name:
+          - avahi
+      - service:
+          name: "{{item}}"
+          enabled: true
+          state: started
+        loop:
+        - avahi-daemon
+    - name: Общее для всех-всех-всех
+      block:
+      - name: Всем копируем .tmux.conf
+        include_role:
+          name: copy_no_overwrite_symlink
+        vars:
+          src: ~/ansible/tmux.conf
+          dest: ~/.tmux.conf
 # После того как базовая настройка произведена и компьютер доступен по hostname
 # через mdns компьютер добавляется в inventory (hosts.yml) и ему выставляется
 # назначение (server, desktop) и в этой секции это назначение настраивается.
