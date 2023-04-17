@@ -1,7 +1,11 @@
+# https://man7.org/linux/man-pages/man1/tmux.1.html
+# https://github.com/tmux/tmux/wiki/Formats
+set -g set-titles on
+set -g set-titles-string "#([ -z "$SSH_CLIENT" ] || echo \$HOSTNAME' ')\
+#{s|$HOME|~|:#{pane_current_path}} \
+#{?#{==:#{==:#W,bash},0},#W,}"
 set-option -g history-limit 10000 # default 2000
 setw -g mode-keys emacs
-
-
 
 set -g status-interval 3
 

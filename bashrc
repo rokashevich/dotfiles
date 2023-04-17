@@ -1,3 +1,4 @@
+[ -z "$PS1" ] && return
 export MOZ_ENABLE_WAYLAND=1
 export ANDROID=~/Android
 export PATH=~/bin:~/.local/bin:$PATH
@@ -19,9 +20,9 @@ trap 'echo -ne "\033]0;$PREFIX ${PWD/$HOME/\~} $BASH_COMMAND\007"' DEBUG
 function show_name(){ 
     if [[ -n "$BASH_COMMAND" ]]; 
     then 
-    echo -en "\033]0;$PREFIX ${PWD/$HOME/'~'}\007";
+    echo -en "\033]0;$PREFIX ${PWD/$HOME/\~}\007";
     else 
-    echo -en "\033]0;$PREFIX ${PWD/$HOME/\~} $BASH_COMMAND\007"; 
+    echo -en "\033]0;$PREFIX $BASH_COMMAND\007"; 
     fi 
 }
 export PROMPT_COMMAND='show_name'
