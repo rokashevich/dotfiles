@@ -1,7 +1,7 @@
 # https://man7.org/linux/man-pages/man1/tmux.1.html
 # https://github.com/tmux/tmux/wiki/Formats
 set -g set-titles on
-set -g set-titles-string "#([ -z "$SSH_CLIENT" ] || echo \$HOSTNAME' ')\
+set -g set-titles-string "#([ -z "$SSH_CLIENT" ] || echo $(hostname)' ')\
 #{s|$HOME|~|:#{pane_current_path}} \
 #{?#{==:#{==:#W,bash},0},#W,}"
 set-option -g history-limit 10000 # default 2000
@@ -27,17 +27,25 @@ else printf \" \" }')\
  #(free --mega | awk 'NR==2{printf \"%%.1f∕%%.fᴳ\", $3/1000, $2/1000}')\
  #(hostname) #S "
 
-if-shell -b '[ "$(tmux -V | sed -En "s/^tmux[^0-9]*([.0-9]+).*/\1 >= 3.3/p" | bc)" = 1 ]' {
-  set -g window-status-current-format "#[fg=#{@BASE_COLOR},bg=colour232] #I•#W "
-  set -g window-status-format "#[fg=colour232,bg=#{@BASE_COLOR}] #I #W "
-  set -g pane-border-style "fg=#{@BASE_COLOR},bg=default"
-  set -g pane-active-border-style "fg=#{@BASE_COLOR},bg=#{@BASE_COLOR}"
-  set -g status-style "fg=colour232,bold,bg=#{@BASE_COLOR}"
-  run-shell 'tmux set -g @BASE_COLOR $(printf "#%x%x%x\n" \
-    `shuf -i 96-160 -n 1` \
-    `shuf -i 96-160 -n 1` \
-    `shuf -i 96-160 -n 1`)'
-  set -g window-status-separator "░"
-}
+set -g window-status-current-format "#[fg=colour232,bg=#{@HIGH_COLOR}] #I•#W "
+set -g window-status-format "#[fg=colour232,bg=#{@BASE_COLOR}] #I #W "
+set -g pane-border-style "fg=#{@BASE_COLOR},bg=default"
+set -g pane-active-border-style "fg=#{@BASE_COLOR},bg=#{@BASE_COLOR}"
+set -g status-style "fg=colour232,bold,bg=#{@BASE_COLOR}"
+run-shell '\
+  BR=`shuf -i 96-160 -n 1`;\
+  BG=`shuf -i 96-160 -n 1`;\
+  BB=`shuf -i 96-160 -n 1`;\
+  HR=$(($BR+64));\
+  HG=$(($BG+64));\
+  HB=$(($BB+64));\
+  tmux set -g @BASE_COLOR $(printf "#%x%x%x\n" $BR $BG $BB);\
+  tmux set -g @HIGH_COLOR $(printf "#%x%x%x\n" $HR $HG $HB)'
+# run-shell 'tmux set -g @BASE_COLOR $(printf "#%x%x%x\n" \
+#   `shuf -i 96-160 -n 1` \
+#   `shuf -i 96-160 -n 1` \
+#   `shuf -i 96-160 -n 1`)'
+set -g window-status-separator "░"
+
 
 
