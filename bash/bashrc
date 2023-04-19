@@ -5,6 +5,7 @@ export PATH=~/bin:~/.local/bin:$PATH
 export PATH=$PATH:$ANDROID/Sdk/platform-tools
 
 is_in_ssh() (
+  [ -n "$SSH_CONNECTION" ] && exit 0
   [ -n "$ZSH_VERSION"  ] && setopt shwordsplit
   declare -A CHILDS
   declare -A COMMS
@@ -45,4 +46,9 @@ function show_name(){
 export PROMPT_COMMAND='show_name'
 
 alias -- yt-dlp-x="yt-dlp -x"
+
+# Дальше для рута
+[ $EUID -ne 0 ] && exit
+. <(kubectl completion bash)
 alias k=kubectl
+complete -o default -F __start_kubectl k
