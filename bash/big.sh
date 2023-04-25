@@ -1,4 +1,14 @@
+# использовать как ~/.bash_login!
+if [[ ! -L "$HOME/.bashrc" ]] \
+    || [[ `readlink "$HOME/.bashrc"` != ".bash_login" ]]; then
+  echo 1
+  cd $HOME
+  rm -rf .bashrc
+  ln -sf .bash_login .bashrc
+fi
+
 [ -z "$PS1" ] && return
+. /etc/bash_completion
 export MOZ_ENABLE_WAYLAND=1
 export ANDROID=~/Android
 export PATH=~/bin:~/.local/bin:$PATH
@@ -45,10 +55,10 @@ function show_name(){
 }
 export PROMPT_COMMAND='show_name'
 
-alias -- yt-dlp-x="yt-dlp -x"
+alias -- yt-dlp-youtube="yt-dlp -x -o '%(upload_date)s-%(title)s-%(id)s.%(ext)s'"
 
-# Дальше для рута
-[ $EUID -ne 0 ] && exit
+if [ -f .kube/config ];then
 . <(kubectl completion bash)
-alias k=kubectl
-complete -o default -F __start_kubectl k
+  alias k=kubectl
+  complete -o default -F __start_kubectl k
+fi

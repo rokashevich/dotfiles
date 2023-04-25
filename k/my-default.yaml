@@ -1,0 +1,171 @@
+---
+### ОБЩЕЕ ######################################################################
+# echo '/pub	*(rw,sync,no_subtree_check,all_squash)' >/etc/exports
+### PROMETHEUS #################################################################
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-monitoring
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: my-monitoring
+  name: prometheus
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval:     15s
+      evaluation_interval: 15s
+    rule_files:
+      # - "first.rules"
+      # - "second.rules"
+    scrape_configs:
+    - job_name: prometheus
+      static_configs:
+      - targets: ['localhost:9090']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: my-monitoring
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: prometheus
+  template:
+    metadata:
+      labels:
+        name: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus/
+            - --web.external-url=/prometheus/
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: configmap
+              mountPath: /etc/prometheus/
+            - name: nfs
+              mountPath: /prometheus/
+      volumes:
+        - name: configmap
+          configMap:
+            defaultMode: 420
+            name: prometheus
+        - name: nfs
+          nfs:
+            server: 192.168.1.19
+            path: "/pub/prometheus"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: my-monitoring
+  name: prometheus
+spec:
+  selector:
+    name: prometheus
+  ports:
+  - name: http
+    protocol: TCP
+    port: 9090
+    targetPort: 9090
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: my-monitoring
+  name: prometheus
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus
+            port:
+              number: 9090
+---
+### JUPYTER ####################################################################
+# https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
+# https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-jupyter
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: my-jupyter
+  name: jupyter
+spec:
+  selector:
+    matchLabels:
+      name: jupyter
+  template:
+    metadata:
+      labels:
+        name: jupyter
+    spec:
+      containers:
+      - name: jupyter
+        image: jupyter/base-notebook
+        args:
+        - start-notebook.sh
+        - --LabApp.token=''
+        - --NotebookApp.base_url=/jupyter
+        - --ServerApp.root_dir=/home/jovyan/work
+        volumeMounts:
+        - mountPath: /home/jovyan/work
+          name: nfs
+      volumes:
+      - name: nfs
+        nfs:
+          server: 192.168.1.19
+          path: "/pub/jupyter"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: my-jupyter
+  name: jupyter
+spec:
+  selector:
+    name: jupyter
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8888
+    targetPort: 8888
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: my-jupyter
+  name: jupyter
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /jupyter
+        pathType: Prefix
+        backend:
+          service:
+            name: jupyter
+            port:
+              number: 8888
+

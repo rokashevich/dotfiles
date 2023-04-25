@@ -32,6 +32,11 @@
       - apt:
           name:
           - avahi-daemon
+          - bash-completion
+          - ca-certificates # нужно докеру и вообще
+          - curl # нужно докеру и вообще
+          - git
+          - gnupg # нужно докеру и вообще
           - jq
       - systemd:
           name: avahi-daemon
