@@ -2,7 +2,6 @@
 ### ОБЩЕЕ ######################################################################
 # echo '/pub *(rw,sync,no_subtree_check,all_squash)' >/etc/exports
 ### PROMETHEUS #################################################################
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -212,10 +211,121 @@ subjects:
     name: monitoring-service-account
     namespace: my-monitoring
 ---
+### GRAFANA ####################################################################
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-grafana
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: my-grafana
+  name: grafana-configmap
+data:
+  grafana.ini: |-
+    [server]
+    root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana/
+    serve_from_sub_path = true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: my-grafana
+  name: grafana-app
+spec:
+  selector:
+    matchLabels:
+      name: grafana-app
+  template:
+    metadata:
+      labels:
+        name: grafana-app
+    spec:
+      securityContext:
+        fsGroup: 472
+        supplementalGroups:
+          - 0
+      containers:
+        - name: grafana
+          image: grafana/grafana:9.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http-grafana
+              protocol: TCP
+          # readinessProbe:
+          #   failureThreshold: 3
+          #   httpGet:
+          #     path: /robots.txt
+          #     port: 3000
+          #     scheme: HTTP
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   timeoutSeconds: 2
+          # livenessProbe:
+          #   failureThreshold: 3
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          #   successThreshold: 1
+          #   tcpSocket:
+          #     port: 3000
+          #   timeoutSeconds: 1
+          # resources:
+          #   requests:
+          #     cpu: 250m
+          #     memory: 750Mi
+          volumeMounts:
+            - mountPath: /var/lib/grafana
+              name: nfs
+            - mountPath: /etc/grafana
+              name: configmap
+      volumes:
+      - name: configmap
+        configMap:
+          defaultMode: 420
+          name: grafana-configmap
+      - name: nfs
+        nfs:
+          server: 192.168.1.19
+          path: "/pub/grafana"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: my-grafana
+  name: grafana-svc
+spec:
+  selector:
+    name: grafana-app
+  ports:
+  - name: http
+    protocol: TCP
+    port: 3000
+    targetPort: http-grafana
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: my-grafana
+  name: grafana-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-svc
+            port:
+              number: 3000
+---
 ### JUPYTER ####################################################################
 # https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
 # https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
----
 apiVersion: v1
 kind: Namespace
 metadata:
