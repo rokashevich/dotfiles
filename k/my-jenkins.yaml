@@ -1,0 +1,128 @@
+# https://www.jenkins.io/doc/book/installing/kubernetes/
+# https://kubernetes.io/docs/concepts/workloads/pods/downward-api/#downwardapi-fieldRef
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-jenkins
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-app
+  namespace: my-jenkins
+  annotations:
+    jenkins-home-host-path: &jenkins-home-host-path "/data/jenkins"
+spec:
+  selector:
+    matchLabels:
+      app: jenkins-app
+  template:
+    metadata:
+      labels:
+        app: jenkins-app
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        kubernetes.io/hostname: tw89
+      volumes:
+        - name: casc
+          configMap:
+            defaultMode: 420
+            name: casc-configmap
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+        - name: jenkins-hostpath
+          hostPath:
+            path: *jenkins-home-host-path
+      containers:
+      - name: jenkins
+        image: rokashevich/jenkins
+        args:
+        - --prefix=/jenkins
+        - --argumentsRealm.passwd.r=1
+        - --argumentsRealm.roles.r=admin
+        env:
+        - name: JAVA_OPTS
+          value: -Djenkins.install.runSetupWizard=false
+        - name: CASC_JENKINS_CONFIG
+          value: /var/jenkins_casc/jenkins.yaml
+        - name: JENKINS_HOME_HOST_PATH
+          value: *jenkins-home-host-path
+        ports:
+          - name: httpport
+            containerPort: 8080
+          - name: jnlpport
+            containerPort: 50000
+        volumeMounts:
+        - name: casc
+          mountPath: /var/jenkins_casc
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+        - name: jenkins-hostpath
+          mountPath: /var/jenkins_home
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-svc
+  namespace: my-jenkins
+spec:
+  selector:
+    app: jenkins-app
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  namespace: my-jenkins
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /jenkins
+        pathType: Prefix
+        backend:
+          service:
+            name: jenkins-svc
+            port:
+              number: 8080
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: my-jenkins
+  name: casc-configmap
+data:
+  # https://jenkinsci.github.io/job-dsl-plugin/
+  jenkins.yaml: |-
+    jenkins:
+      systemMessage: >-
+        Конфигурация
+        https://github.com/rokashevich/dotfiles/tree/master/k
+    jobs:
+    - script: |
+        pipelineJob('cp19') {
+          definition {
+            cpsScm {
+              scm {
+                git {
+                  remote {
+                      url('https://github.com/rokashevich/cp19.git')
+                  }
+                  extensions {
+                    submoduleOptions {
+                      recursive(true)
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }

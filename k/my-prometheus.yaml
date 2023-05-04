@@ -1,0 +1,278 @@
+---
+### ОБЩЕЕ ######################################################################
+# echo '/pub *(rw,sync,no_subtree_check,all_squash)' >/etc/exports
+### PROMETHEUS #################################################################
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-prometheus
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: my-prometheus
+  name: prometheus
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval:     15s
+      evaluation_interval: 15s
+    rule_files:
+      # - "first.rules"
+      # - "second.rules"
+    scrape_configs:
+    - job_name: 'prometheus'
+      metrics_path: /prometheus/metrics
+      static_configs:
+      - targets: ['localhost:9090']
+    - job_name: 'node-exporter'
+      kubernetes_sd_configs:
+        - role: endpoints
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_endpoints_name]
+        regex: 'node-exporter-svc'
+        action: keep
+    - job_name: 'pushgateway'
+      honor_labels: false
+      metrics_path: /pushgateway/metrics
+      static_configs:
+      - targets: ['pushgateway-svc:9091']
+        labels:
+          pushgateway_instance: metricfire
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: my-prometheus
+  name: prometheus-deploy
+spec:
+  selector:
+    matchLabels:
+      name: prometheus-deploy
+  template:
+    metadata:
+      labels:
+        name: prometheus-deploy
+    spec:
+      serviceAccountName: monitoring-service-account
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus/
+            - --web.external-url=/prometheus/
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: configmap
+              mountPath: /etc/prometheus/
+            - name: nfs
+              mountPath: /prometheus/
+      volumes:
+        - name: configmap
+          configMap:
+            defaultMode: 420
+            name: prometheus
+        - name: nfs
+          nfs:
+            server: 192.168.1.19
+            path: "/pub/prometheus"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: my-prometheus
+  name: prometheus-svc
+spec:
+  selector:
+    name: prometheus-deploy
+  ports:
+  - name: http
+    protocol: TCP
+    port: 9090
+    targetPort: 9090
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: my-prometheus
+  name: prometheus-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /prometheus
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-svc
+            port:
+              number: 9090
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: my-prometheus
+  name: node-exporter-deamonset
+  labels:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: exporter
+      app.kubernetes.io/name: node-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: exporter
+        app.kubernetes.io/name: node-exporter
+    spec:
+      containers:
+      - args:
+        # - --path.sysfs=/host/sys
+        # - --path.rootfs=/host/root
+        # - --no-collector.wifi
+        # - --no-collector.hwmon
+        # - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/pods/.+)($|/)
+        # - --collector.netclass.ignored-devices=^(veth.*)$
+        name: node-exporter
+        image: prom/node-exporter
+        ports:
+          - containerPort: 9100
+            protocol: TCP
+      #   volumeMounts:
+      #   - mountPath: /host/sys
+      #     mountPropagation: HostToContainer
+      #     name: sys
+      #     readOnly: true
+      #   - mountPath: /host/root
+      #     mountPropagation: HostToContainer
+      #     name: root
+      #     readOnly: true
+      # volumes:
+      # - hostPath:
+      #     path: /sys
+      #   name: sys
+      # - hostPath:
+      #     path: /
+      #   name: root
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: node-exporter-svc
+  namespace: my-prometheus
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port:   '9100'
+spec:
+  selector:
+      app.kubernetes.io/component: exporter
+      app.kubernetes.io/name: node-exporter
+  ports:
+  - name: node-exporter
+    protocol: TCP
+    port: 9100
+    targetPort: 9100
+---
+apiVersion: v1
+kind: ServiceAccount
+
+metadata:
+  name: monitoring-service-account
+  namespace: my-prometheus
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-cluster-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "services", "pods", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get"]
+  - apiGroups: ["extensions"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+
+metadata:
+  name: monitoring-cluster-role-binding
+
+roleRef:
+  kind: ClusterRole
+  name: monitoring-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+
+subjects:
+  - kind: ServiceAccount
+    name: monitoring-service-account
+    namespace: my-prometheus
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+  name: pushgateway-app
+  namespace: my-prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: pushgateway-app
+  template:
+    metadata:
+      labels:
+        name: pushgateway-app
+    spec:
+      containers:
+      - name: pushgateway
+        image: prom/pushgateway
+        args:
+        - --web.route-prefix=/pushgateway/
+        ports:
+        - name: http
+          containerPort: 9091
+          protocol: TCP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pushgateway-svc
+  namespace: my-prometheus
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port:   '9091'
+spec:
+  selector:
+    name: pushgateway-app
+  ports:
+  - name: http
+    protocol: TCP
+    port: 9091
+    targetPort: 9091
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: my-prometheus
+  name: pushgateway-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /pushgateway
+        pathType: Prefix
+        backend:
+          service:
+            name: pushgateway-svc
+            port:
+              number: 9091

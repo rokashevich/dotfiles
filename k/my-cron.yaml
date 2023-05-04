@@ -1,0 +1,26 @@
+# https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-cron
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: node-tagger
+  namespace: my-cron
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: kubectl
+            image: bitnami/kubectl
+            command:
+            - /bin/sh
+            - -c
+            - date >> /tmp/aaa
+          restartPolicy: OnFailure

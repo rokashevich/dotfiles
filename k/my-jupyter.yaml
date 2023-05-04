@@ -1,0 +1,72 @@
+---
+### JUPYTER ####################################################################
+# https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
+# https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-jupyter
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: my-jupyter
+  name: jupyter-deploy
+spec:
+  selector:
+    matchLabels:
+      name: jupyter-deploy
+  template:
+    metadata:
+      labels:
+        name: jupyter-deploy
+    spec:
+      containers:
+      - name: jupyter
+        image: jupyter/base-notebook
+        args:
+        - start-notebook.sh
+        - --ServerApp.token=''
+        - --ServerApp.base_url=/jupyter
+        - --ServerApp.root_dir=/home/jovyan/work
+        volumeMounts:
+        - mountPath: /home/jovyan/work
+          name: nfs
+      volumes:
+      - name: nfs
+        nfs:
+          server: 192.168.1.19
+          path: "/pub/jupyter"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: my-jupyter
+  name: jupyter-svc
+spec:
+  selector:
+    name: jupyter-deploy
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8888
+    targetPort: 8888
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: my-jupyter
+  name: jupyter-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /jupyter
+        pathType: Prefix
+        backend:
+          service:
+            name: jupyter-svc
+            port:
+              number: 8888
+
