@@ -13,6 +13,7 @@ metadata:
   namespace: my-prometheus
   name: prometheus
 data:
+  # __meta_kubernetes_endpoints_name
   prometheus.yml: |-
     global:
       scrape_interval:     15s
@@ -27,11 +28,20 @@ data:
       - targets: ['localhost:9090']
     - job_name: 'node-exporter'
       kubernetes_sd_configs:
-        - role: endpoints
+        - role: node
+        #- role: endpoints
       relabel_configs:
-      - source_labels: [__meta_kubernetes_endpoints_name]
-        regex: 'node-exporter-svc'
-        action: keep
+      - source_labels: [__address__]
+        regex: ^(.*):\d+$
+        target_label: __address__
+        replacement: $1:9100
+      #- target_label: __scheme__
+      #  replacement: http
+      - source_labels: [__meta_kubernetes_node_name]
+        target_label: instance
+      #- source_labels: [__meta_kubernetes_endpoint_node_name]
+      #  regex: 'node-exporter-svc'
+      #  action: keep
     - job_name: 'pushgateway'
       honor_labels: false
       metrics_path: /pushgateway/metrics
@@ -62,6 +72,7 @@ spec:
             - --config.file=/etc/prometheus/prometheus.yml
             - --storage.tsdb.path=/prometheus/
             - --web.external-url=/prometheus/
+            - --web.enable-admin-api
           ports:
             - containerPort: 9090
           volumeMounts:
@@ -132,33 +143,39 @@ spec:
     spec:
       containers:
       - args:
-        # - --path.sysfs=/host/sys
-        # - --path.rootfs=/host/root
-        # - --no-collector.wifi
-        # - --no-collector.hwmon
-        # - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/pods/.+)($|/)
-        # - --collector.netclass.ignored-devices=^(veth.*)$
+        - --path.procfs=/host/proc
+        - --path.sysfs=/host/sys
+        - --path.rootfs=/host/root
+        - --collector.filesystem.ignored-mount-points=^/(boot|dev|proc|run|sys|var/lib)($|/)
+        - --collector.filesystem.ignored-fs-types=^(tmpfs|autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$
         name: node-exporter
         image: prom/node-exporter
         ports:
           - containerPort: 9100
+            #hostPort: 9100
             protocol: TCP
-      #   volumeMounts:
-      #   - mountPath: /host/sys
-      #     mountPropagation: HostToContainer
-      #     name: sys
-      #     readOnly: true
-      #   - mountPath: /host/root
-      #     mountPropagation: HostToContainer
-      #     name: root
-      #     readOnly: true
-      # volumes:
-      # - hostPath:
-      #     path: /sys
-      #   name: sys
-      # - hostPath:
-      #     path: /
-      #   name: root
+        volumeMounts:
+        - mountPath: /host/proc
+          name: proc
+          readOnly: true
+        - mountPath: /host/sys
+          name: sys
+          readOnly: true
+        - name: root
+          #mountPropagation: HostToContainer
+          mountPath: /host/root
+          readOnly: true
+      hostNetwork: true
+      volumes:
+      - hostPath:
+          path: /proc
+        name: proc
+      - hostPath:
+          path: /sys
+        name: sys
+      - name: root
+        hostPath:
+          path: /
 ---
 kind: Service
 apiVersion: v1
@@ -238,6 +255,7 @@ spec:
         image: prom/pushgateway
         args:
         - --web.route-prefix=/pushgateway/
+        - --web.enable-admin-api
         ports:
         - name: http
           containerPort: 9091

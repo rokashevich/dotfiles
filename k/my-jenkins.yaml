@@ -44,9 +44,12 @@ spec:
         - --prefix=/jenkins
         - --argumentsRealm.passwd.r=1
         - --argumentsRealm.roles.r=admin
+        resources:
+          limits:
+            cpu: "2000m"
         env:
         - name: JAVA_OPTS
-          value: -Djenkins.install.runSetupWizard=false
+          value: -Djenkins.install.runSetupWizard=false -Xmx256M -Djava.awt.headless=true
         - name: CASC_JENKINS_CONFIG
           value: /var/jenkins_casc/jenkins.yaml
         - name: JENKINS_HOME_HOST_PATH
@@ -123,6 +126,14 @@ data:
                   }
                 }
               }
+            }
+            logRotator {
+              numToKeep(10)
+            }
+          }
+          triggers {
+            scm('@hourly') {
+              ignorePostCommitHooks()
             }
           }
         }
