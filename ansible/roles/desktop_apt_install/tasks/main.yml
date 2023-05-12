@@ -31,5 +31,6 @@
     - python3-pip
     - remmina-plugin-rdp
     - remmina-plugin-vnc
+    - systemd-timesyncd # ntp
     - virtualbox-qt
     - xz-utils
