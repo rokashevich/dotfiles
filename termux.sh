@@ -61,7 +61,7 @@ tmux new-session -d -s ${session} -n service
 tmux selectp -t ${session}:0
 tmux send-keys "dropbear -F" C-m
 tmux splitw -v -p 90
-tmux send-keys "c" C-m
+tmux send-keys "termux-wake-lock;c" C-m
 
 tmux new-window -t ${session}:1 -n work
 
