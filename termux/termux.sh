@@ -60,8 +60,10 @@ tmux start-server
 tmux new-session -d -s ${session} -n service
 tmux selectp -t ${session}:0
 tmux send-keys "dropbear -F" C-m
-tmux splitw -v -p 90
+tmux splitw -v -p 95
 tmux send-keys "termux-wake-lock;c" C-m
+tmux splitw -v -p 50
+tmux send-keys "python stat_importer.py" C-m
 
 tmux new-window -t ${session}:1 -n work
 
