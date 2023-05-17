@@ -3,6 +3,9 @@
 // Локальная информация: https://[JENKINS URL]/jenkins/pipeline-syntax/globals
 pipeline {
   agent any
+  options {
+    skipDefaultCheckout(true)
+  }
   stages {
     stage('Подготовка'){
       steps{
