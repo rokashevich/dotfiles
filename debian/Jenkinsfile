@@ -1,0 +1,20 @@
+// https://www.jenkins.io/doc/book/pipeline/syntax/#environment
+// https://www.jenkins.io/doc/pipeline/steps/workflow-basic-steps/#pipeline-basic-steps
+// Локальная информация: https://[JENKINS URL]/jenkins/pipeline-syntax/globals
+pipeline {
+  agent any
+  stages {
+    stage('Подготовка'){
+      steps{
+        script {
+          env.HOST_WORKSPACE=env.WORKSPACE.replace(env.JENKINS_HOME,env.JENKINS_HOME_HOST_PATH)
+        }
+      }
+    }
+  }
+  post {
+    always {
+      echo "always"
+    }
+  }
+}
