@@ -14,10 +14,42 @@ pipeline {
         }
       }
     }
+    stage('Поштучные пакеты') {
+      matrix {
+        axes {
+          axis {
+              name 'PLATFORM'
+              values 'amd64'
+          }
+          axis {
+              name 'APP'
+              values 'k9s', 'qbittorrent'
+          }
+        }
+        stages {
+          stage('Качат') {
+            steps {
+              echo 'Скачат'
+              sh "echo 1 $PLATFORM $APP"
+              sh 'echo 2 $PLATFORM $APP'
+              sh '''
+cat <<EOF
+xxx $PLATFORM $APP yyy
+EOF'''
+            }
+          }
+        }
+      }
+    }
+    stage('Мета-пакет') {
+      steps {
+        echo 'Сделали мета-пакет'
+      }
+    }
   }
   post {
     always {
-      echo "always"
+      archiveArtifacts artifacts: '**/*.deb'
     }
   }
 }

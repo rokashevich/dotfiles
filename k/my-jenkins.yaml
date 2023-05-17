@@ -137,3 +137,27 @@ data:
             }
           }
         }
+        pipelineJob('debs') {
+          definition {
+            cpsScm {
+              scm {
+                git {
+                  remote {
+                    url('https://github.com/rokashevich/dotfiles.git')
+                  }
+                  branch('master')
+                }
+              }
+              lightweight()
+              scriptPath('debian/Jenkinsfile')
+            }
+            logRotator {
+              numToKeep(10)
+            }
+          }
+          triggers {
+            scm('@daily') {
+              ignorePostCommitHooks()
+            }
+          }
+        }
