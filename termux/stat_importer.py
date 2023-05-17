@@ -56,7 +56,10 @@ async def minutely():
     while True:
         d = construct_data_for_prometheus(http_importer("192.168.1.254"))
         url = "http://192.168.1.19/pushgateway/metrics/job/manual/instance/netis-n4"
-        r = requests.post(url, data=d)
+        try:
+            r = requests.post(url, data=d)
+        except:
+            pass
         print(r.status_code, r.text)
         await asyncio.sleep(60)
 
