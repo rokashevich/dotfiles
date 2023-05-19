@@ -54,6 +54,11 @@ spec:
           value: /var/jenkins_casc/jenkins.yaml
         - name: JENKINS_HOME_HOST_PATH
           value: *jenkins-home-host-path
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github
+              key: token
         ports:
           - name: httpport
             containerPort: 8080

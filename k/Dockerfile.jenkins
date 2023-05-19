@@ -1,10 +1,14 @@
-FROM rancher/kubectl AS KUBECTL
-
 FROM jenkins/jenkins:latest
 USER root
 RUN export DEBIAN_FRONTEND=noninteractive; \
   apt-get update \
-  && apt-get install -y git lsb-release \
+  && apt-get -y install --no-install-recommends --no-install-suggests \
+  ca-certificates \
+  curl \
+  dpkg-dev \
+  git \
+  jq \
+  lsb-release \
   && printf '[safe]\n  directory = *\n' >> /etc/gitconfig \
   && curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
   https://download.docker.com/linux/debian/gpg \

@@ -7,14 +7,35 @@ pipeline {
     skipDefaultCheckout(true)
   }
   stages {
-    stage('Подготовка'){
+    stage('Подготовка/проверка окружения'){
       steps{
         script {
-          env.HOST_WORKSPACE=env.WORKSPACE.replace(env.JENKINS_HOME,env.JENKINS_HOME_HOST_PATH)
+          env.HOST_WORKSPACE = env.WORKSPACE.replace(
+            env.JENKINS_HOME,env.JENKINS_HOME_HOST_PATH)
+          if (!env.GITHUB_TOKEN)
+            error("В контейнер не проброшен GITHUB_TOKEN!")
         }
       }
     }
-    stage('Поштучные пакеты') {
+    stage('Начальное/разовое клонирование репозитория') {
+      when { expression { return !fileExists('.git') }}
+      steps {
+        sh '''git clone --filter=blob:none --no-checkout \
+        https://rokashevich:${GITHUB_TOKEN}@github.com/rokashevich/rokashevich.github.io.git .
+        git sparse-checkout set --cone deb
+        git checkout main
+        cat <<EOF >.gitignore
+.gitignore
+_*
+EOF'''
+      }
+    }
+    stage('Обновление репозитория') {
+      steps {
+        sh 'git fetch origin && git reset --hard origin/main'
+      }
+    }
+    stage('Матричное пакетирование') {
       matrix {
         axes {
           axis {
@@ -26,16 +47,36 @@ pipeline {
               values 'k9s', 'qbittorrent'
           }
         }
+        environment {
+          APP = "${APP}"
+          PLATFORM = "${PLATFORM}"
+        }
         stages {
-          stage('Качат') {
+          stage('Пакетирование отдельного пакета') {
             steps {
-              echo 'Скачат'
-              sh "echo 1 $PLATFORM $APP"
-              sh 'echo 2 $PLATFORM $APP'
-              sh '''
-cat <<EOF
-xxx $PLATFORM $APP yyy
-EOF'''
+              sh '''#!/bin/bash
+set -ueo pipefail
+if [[ "${APP}" == "k9s" ]]; then
+  VER="$(curl -s https://api.github.com/repos/derailed/k9s/releases/latest|jq -r '.name')"
+  DEB_VER="${VER:1}"
+  DEB_NAME="k9s_${DEB_VER}_${PLATFORM}.deb"
+  if [[ ! -f "deb/${DEB_NAME}" ]]; then
+    URL="https://github.com/derailed/k9s/releases/download/"${VER}"/k9s_Linux_amd64.tar.gz"
+    mkdir -p _k9s/{DEBIAN,usr/local/bin}
+    curl -sL "${URL}" | tar -C _k9s/usr/local/bin -xzvf - k9s
+    chmod +x _k9s/usr/local/bin/k9s
+    cat <<X >_k9s/DEBIAN/control
+Package: k9s
+Version: ${DEB_VER}
+Architecture: amd64
+Maintainer: Rkshvch <rokashevich@gmail.com>
+Description: k9s binary from their github
+X
+    rm -vf deb/${DEB_NAME%%_*}
+    dpkg-deb --build --root-owner-group -z9 _k9s deb/${DEB_NAME}
+  fi
+fi
+              '''
             }
           }
         }
@@ -43,7 +84,41 @@ EOF'''
     }
     stage('Мета-пакет') {
       steps {
-        echo 'Сделали мета-пакет'
+        sh '''#!/bin/bash
+META_VER=1
+if [[ ! -f deb/rkshvch-desktop-meta_${META_VER}.deb ]]; then
+  mkdir -p _meta/DEBIAN
+  cat <<X >_meta/DEBIAN/control
+  Package: rkshvch-desktop-meta
+  Version: ${META_VER}
+  Architecture: amd64
+  Maintainer: Rkshvch <rokashevich@gmail.com>
+  Description: My meta package
+  Depends: k9s
+X
+  rm -vf deb/rkshvch-desktop-meta_*.deb
+  dpkg-deb --build --root-owner-group _meta deb/rkshvch-desktop-meta_${META_VER}.deb
+fi
+        '''
+      }
+    }
+    stage('Генерация репозитория/удаление истории/пуш в ориджин') {
+      // Проверть размер репозитория: поле size по ссылке (КБ):
+      // https://api.github.com/repos/rokashevich/rokashevich
+      steps {
+        sh '''
+cd deb && dpkg-scanpackages . > Packages
+
+git checkout --orphan newBranch
+git branch -D main
+git branch -m main
+git add -A
+git config --global user.email "rokashevich@gmail.com"
+git config --global user.name "robot"
+git commit -m"Jenkins Auto Commit"
+git push -f origin main
+git gc --aggressive --prune=all
+        '''
       }
     }
   }
