@@ -44,7 +44,7 @@ EOF'''
           }
           axis {
               name 'APP'
-              values 'k9s', 'qbittorrent'
+              values 'k9s', 'helm'
           }
         }
         environment {
@@ -60,7 +60,8 @@ if [[ "${APP}" == "k9s" ]]; then
   VER="$(curl -s https://api.github.com/repos/derailed/k9s/releases/latest|jq -r '.name')"
   DEB_VER="${VER:1}"
   DEB_NAME="k9s_${DEB_VER}_${PLATFORM}.deb"
-  if [[ ! -f "deb/${DEB_NAME}" ]]; then
+  DEB_PATH="deb/${DEB_NAME}"
+  if [[ ! -f "${DEB_PATH}" ]]; then
     URL="https://github.com/derailed/k9s/releases/download/"${VER}"/k9s_Linux_amd64.tar.gz"
     mkdir -p _k9s/{DEBIAN,usr/local/bin}
     curl -sL "${URL}" | tar -C _k9s/usr/local/bin -xzvf - k9s
@@ -73,7 +74,27 @@ Maintainer: Rkshvch <rokashevich@gmail.com>
 Description: k9s binary from their github
 X
     rm -vf deb/${DEB_NAME%%_*}
-    dpkg-deb --build --root-owner-group -z9 _k9s deb/${DEB_NAME}
+    dpkg-deb --build --root-owner-group -z9 _k9s "${DEB_PATH}"
+  fi
+elif [[ "${APP}" == "helm" ]]; then
+  VER="$(curl -s https://api.github.com/repos/helm/helm/releases/latest|jq -r '.tag_name')"
+  DEB_VER="${VER:1}"
+  DEB_NAME="helm_${DEB_VER}_${PLATFORM}.deb"
+  DEB_PATH="deb/${DEB_NAME}"
+  if [[ ! -f "${DEB_PATH}" ]]; then
+    URL="https://get.helm.sh/helm-${VER}-linux-amd64.tar.gz"
+    mkdir -p _helm/{DEBIAN,usr/local/bin}
+    curl -sL "${URL}" | tar --strip-components 1 -C _helm/usr/local/bin -xzvf - linux-amd64/helm
+    chmod +x _helm/usr/local/bin/helm
+    cat <<X >_helm/DEBIAN/control
+Package: helm
+Version: ${DEB_VER}
+Architecture: amd64
+Maintainer: Rkshvch <rokashevich@gmail.com>
+Description: helm binary from their github
+X
+    rm -vf deb/${DEB_NAME%%_*}
+    dpkg-deb --build --root-owner-group -z9 _helm "${DEB_PATH}"
   fi
 fi
               '''
@@ -85,19 +106,19 @@ fi
     stage('Мета-пакет') {
       steps {
         sh '''#!/bin/bash
-META_VER=1
+META_VER=1.2.0
 if [[ ! -f deb/rkshvch-desktop-meta_${META_VER}.deb ]]; then
   mkdir -p _meta/DEBIAN
   cat <<X >_meta/DEBIAN/control
-  Package: rkshvch-desktop-meta
-  Version: ${META_VER}
-  Architecture: amd64
-  Maintainer: Rkshvch <rokashevich@gmail.com>
-  Description: My meta package
-  Depends: k9s
+Package: rkshvch-desktop-meta
+Version: ${META_VER}
+Architecture: amd64
+Maintainer: Rkshvch <rokashevich@gmail.com>
+Description: My meta package
+Depends: k9s,helm
 X
   rm -vf deb/rkshvch-desktop-meta_*.deb
-  dpkg-deb --build --root-owner-group _meta deb/rkshvch-desktop-meta_${META_VER}.deb
+  dpkg-deb --build --root-owner-group -z9 _meta deb/rkshvch-desktop-meta_${META_VER}.deb
 fi
         '''
       }
