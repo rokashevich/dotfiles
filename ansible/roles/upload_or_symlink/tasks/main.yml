@@ -1,0 +1,32 @@
+---
+- name: Проверяем src
+  stat:
+    path: "{{src}}"
+  register: src_info
+- name: Проверяем dest
+  stat:
+    path: "{{dest}}"
+  register: dest_info
+- when: src_info.stat.exists
+  block:
+  - name: Удаляем dest, если это не симлинк
+    when: dest_info.stat.exists and not dest_info.stat.islnk
+    file:
+      path: "{{dest}}"
+      state: absent
+  - name: Делаем симлинк
+    file:
+      src: "{{ src }}"
+      dest: "{{ dest }}"
+      state: link
+- when: not src_info.stat.exists
+  block:
+  - name: Удаляем dest, если это не файл
+    when: dest_info.stat.exists and not dest_info.stat.isreg
+    file:
+      path: "{{dest}}"
+      state: absent
+  - name: Копируем
+    copy:
+      src: "{{ src }}"
+      dest: "{{ dest }}"

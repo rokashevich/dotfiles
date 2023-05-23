@@ -24,6 +24,8 @@
     - libspa-0.2-bluetooth
     - make # на удивление надо для virtual-box
     - man-db
+    - memtest86+ # у Лёхи взял плоху планку
+    - memtester # тоже пусть будет, но 86+ в приоритете
     - mpv
     - nautilus
     - network-manager
@@ -32,5 +34,6 @@
     - remmina-plugin-rdp
     - remmina-plugin-vnc
     - systemd-timesyncd # ntp
+    - telnet
     - virtualbox-qt
     - xz-utils

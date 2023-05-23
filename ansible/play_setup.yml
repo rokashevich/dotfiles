@@ -59,12 +59,13 @@
         loop:
         - avahi-daemon
     - name: Общее для всех-всех-всех
+      tags: xxx
       block:
-      - name: Всем копируем .tmux.conf
+      - name: Всем ~/.tmux.conf
         include_role:
-          name: copy_no_overwrite_symlink
+          name: upload_or_symlink
         vars:
-          src: ~/ansible/tmux.conf
+          src: ~/dotfiles/tmux/tmux.conf.3.3
           dest: ~/.tmux.conf
 # После того как базовая настройка произведена и компьютер доступен по hostname
 # через mdns компьютер добавляется в inventory (hosts.yml) и ему выставляется
