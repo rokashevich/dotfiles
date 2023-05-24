@@ -1,4 +1,5 @@
 - name: Пакеты, которые мне по-любому нужны
+  become: true
   apt:
     name:
     - apt-file
@@ -22,6 +23,7 @@
     - gvfs-backends
     - gvfs-fuse
     - libspa-0.2-bluetooth
+    - ltrace
     - make # на удивление надо для virtual-box
     - man-db
     - memtest86+ # у Лёхи взял плоху планку

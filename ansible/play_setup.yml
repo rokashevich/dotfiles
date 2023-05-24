@@ -3,18 +3,6 @@
   hosts: all
   gather_facts: true
   tasks:
-  - name: Предварительная локальная выкачка всего что понадобится далее
-    block:
-    - name: В кач-ве рабочего каталога используем ~/ansible
-      local_action:
-        module: file
-        path: ~/ansible
-        state: directory
-    - name: Качаем tmux.conf
-      local_action:
-        module: get_url
-        url: "https://raw.githubusercontent.com/rokashevich/dotfiles/master/tmux.conf"
-        dest: "~/ansible/tmux.conf"
 # Первичная настройка, когда компьютер только засетаплен: есть ip, есть sshd,
 # есть что-то из sudo/su/doas - включает в себя:
 # - установку avahi для публикации hostname по mdns;
@@ -87,6 +75,4 @@
             - tmux
       - when: purpose == "desktop"
         block:
-        - {include_role: {name: desktop_portable_install}, vars: {sandbox: "{{ansible_env.HOME}}/bin"}}
-        - include_role: name=desktop_apt_install
         - include_role: name=desktop_apt_install
