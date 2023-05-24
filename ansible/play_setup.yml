@@ -59,7 +59,6 @@
         loop:
         - avahi-daemon
     - name: Общее для всех-всех-всех
-      tags: xxx
       block:
       - name: Всем ~/.tmux.conf
         include_role:

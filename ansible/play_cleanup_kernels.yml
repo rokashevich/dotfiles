@@ -1,0 +1,49 @@
+---
+- name: Update/Upgrade
+  hosts: all
+  gather_facts: true
+  tasks:
+  - group_by:
+      key: OS_{{ansible_facts.distribution}}
+  - package_facts:
+      manager: auto
+  - set_fact:
+      loaded_kernel: "{{ansible_facts.kernel}}"
+      newest_installed_kerenel: "{{ansible_facts.packages|list|select('match', 'linux-image-[1-9].*')|map('regex_replace','linux-image-','')|max}}"
+
+- hosts: OS_Debian
+  become: true
+  tasks:
+  - name: Загруженное ядро == последнее установленное
+    when: loaded_kernel == newest_installed_kerenel
+    debug:
+      msg: ""
+    changed_when: true
+    notify: cleanup
+  - name: Загруженное ядро != последнее установленное
+    when: loaded_kernel != newest_installed_kerenel
+    block:
+    - pause:
+        prompt: "Press return to reboot {{inventory_hostname}}"
+        echo: false
+    - reboot:
+      register: x
+    - debug:
+        msg: "Rebooted in {{x}} seconds, continuing..."
+      changed_when: true
+      notify: cleanup
+  handlers:
+  - listen: cleanup
+    shell: |
+      dpkg -l\
+      |grep -E 'linux-headers|linux-image'\
+      |grep -vE "`uname -a|cut -d' ' -f3`\
+      |linux-image-amd64|linux-headers-amd64"\
+      |awk '{s=s" "$2}END{if(s!="")print "apt -y purge"s}'
+    register: cleanup_command
+  - listen: cleanup
+    pause:
+      prompt: "Press return to run \n`{{cleanup_command.stdout}}`"
+      echo: false
+  - listen: cleanup
+    shell: "{{cleanup_command.stdout}}"
