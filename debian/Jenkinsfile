@@ -96,8 +96,6 @@ X
     rm -vf deb/${DEB_NAME%%_*}
     dpkg-deb --build --root-owner-group -z9 _helm "${DEB_PATH}"
   fi
-fi
-
 elif [[ "${APP}" == "minikube" ]]; then
   OWNER=kubernetes
   REPO=minikube
@@ -122,6 +120,54 @@ elif [[ "${APP}" == "minikube" ]]; then
       -C "${UNPACKED_DEB}/usr/local/bin" -xzf - "${EXTRACT_PATH}"
     chmod -v +x "${UNPACKED_DEB}"/usr/local/bin/*
     [[ -f "${UNPACKED_DEB}/usr/local/bin/${ORIGINAL_BIN_NAME}" ]] && \
+      mv "${UNPACKED_DEB}/usr/local/bin/${ORIGINAL_BIN_NAME}" \
+        "${UNPACKED_DEB}/usr/local/bin/${OUR_BIN_NAME}"
+    cat <<X >"${UNPACKED_DEB}/DEBIAN/control"
+Package: ${APP}
+Version: ${DEB_VER}
+Architecture: amd64
+Maintainer: Rkshvch <rokashevich@gmail.com>
+Description: Probably official binary from github
+X
+    rm -vf "deb/${DEB_NAME%%_*}"
+    dpkg-deb --build --root-owner-group -z9 "${UNPACKED_DEB}" "${DEB_PATH}"
+  fi
+elif [[ "${APP}" == "shellcheck" ]]; then
+  OWNER=koalaman
+  REPO=shellcheck
+  STRIP_COMPONENTS=1
+  ORIGINAL_BIN_NAME="shellcheck"
+  EXTRACT_PATH="shellcheck-v*/${ORIGINAL_BIN_NAME}" # tar xt посмотреть что внутри арихва
+  OUR_BIN_NAME=""
+
+  # Общее для всех проектов на гитхабе
+  DAT="$(curl -s https://api.github.com/repos/${OWNER}/${REPO}/releases/latest)"
+  TAG="$(echo "${DAT}"|jq -r '.tag_name')"
+  DOWNLOAD_URL="$(echo "${DAT}"|\
+    jq -r '.assets[].browser_download_url | select(contains("linux")
+      and (contains("amd64") or contains("x86_64"))
+      and (contains(".tar.gz") or contains(".tar.xz")))')"
+  [[ -z $DOWNLOAD_URL ]] && { echo "DOWNLOAD_URL empty, exit 1"; exit 1; }
+  DEB_VER="${TAG:1}"
+  DEB_NAME="${APP}_${DEB_VER}_${PLATFORM}.deb"
+  DEB_PATH="deb/${DEB_NAME}"
+  UNPACKED_DEB="_${APP}"
+  ARCHIVE_NAME_PREFIX="downloaded_${APP}_"
+  ARCHIVE_NAME="${ARCHIVE_NAME_PREFIX}${DEB_VER}"
+  if [[ ! -f "${DEB_PATH}" ]]; then
+    mkdir -p "${UNPACKED_DEB}"/{DEBIAN,usr/local/bin}
+
+    # Через пайп tar не умеет определять формат архива, поэтому через файл
+    [[ ! -f "${ARCHIVE_NAME}" ]] && {
+      rm -vf "${ARCHIVE_NAME_PREFIX}*";
+      curl -sL "${DOWNLOAD_URL}" -o "${ARCHIVE_NAME}";
+    } || echo "Файл уже есть такой"
+
+    tar --strip-components ${STRIP_COMPONENTS} \
+      -C "${UNPACKED_DEB}/usr/local/bin" -xvf "${ARCHIVE_NAME}" \
+      --wildcards "${EXTRACT_PATH}"
+    chmod -v +x "${UNPACKED_DEB}"/usr/local/bin/*
+    [[ -n "${OUR_BIN_NAME}" ]] && \
       mv "${UNPACKED_DEB}/usr/local/bin/${ORIGINAL_BIN_NAME}" \
         "${UNPACKED_DEB}/usr/local/bin/${OUR_BIN_NAME}"
     cat <<X >"${UNPACKED_DEB}/DEBIAN/control"
