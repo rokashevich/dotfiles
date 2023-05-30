@@ -65,6 +65,7 @@ alias grep='grep --color=auto'
 alias ls='ls --color=auto'
 alias ip='ip -color=auto'
 alias -- yt-dlp-youtube="yt-dlp -x -o '%(upload_date)s-%(title)s-%(id)s.%(ext)s'"
+alias -- yt-dlp-playlist="yt-dlp -o '%(playlist_index)s-%(title)s-%(id)s.%(ext)s'"
 
 if [ -f ~/.kube/config ];then
 . <(kubectl completion bash)
