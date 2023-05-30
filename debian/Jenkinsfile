@@ -152,7 +152,7 @@ elif [[ "${APP}" == "shellcheck" ]]; then
   DEB_NAME="${APP}_${DEB_VER}_${PLATFORM}.deb"
   DEB_PATH="deb/${DEB_NAME}"
   UNPACKED_DEB="_${APP}"
-  ARCHIVE_NAME_PREFIX="downloaded_${APP}_"
+  ARCHIVE_NAME_PREFIX="_downloaded_${APP}_"
   ARCHIVE_NAME="${ARCHIVE_NAME_PREFIX}${DEB_VER}"
   if [[ ! -f "${DEB_PATH}" ]]; then
     mkdir -p "${UNPACKED_DEB}"/{DEBIAN,usr/local/bin}
@@ -161,7 +161,7 @@ elif [[ "${APP}" == "shellcheck" ]]; then
     [[ ! -f "${ARCHIVE_NAME}" ]] && {
       rm -vf "${ARCHIVE_NAME_PREFIX}*";
       curl -sL "${DOWNLOAD_URL}" -o "${ARCHIVE_NAME}";
-    } || echo "Файл уже есть такой"
+    }
 
     tar --strip-components ${STRIP_COMPONENTS} \
       -C "${UNPACKED_DEB}/usr/local/bin" -xvf "${ARCHIVE_NAME}" \
@@ -190,7 +190,7 @@ fi
     stage('Мета-пакет') {
       steps {
         sh '''#!/bin/bash
-META_VER=1.3.0
+META_VER=1.4.0
 if [[ ! -f deb/rkshvch-desktop-meta_${META_VER}.deb ]]; then
   mkdir -p _meta/DEBIAN
   cat <<X >_meta/DEBIAN/control
@@ -199,7 +199,7 @@ Version: ${META_VER}
 Architecture: amd64
 Maintainer: Rkshvch <rokashevich@gmail.com>
 Description: My meta package
-Depends: k9s,helm
+Depends: k9s,helm,minikube,shellcheck
 X
   rm -vf deb/rkshvch-desktop-meta_*.deb
   dpkg-deb --build --root-owner-group -z9 _meta deb/rkshvch-desktop-meta_${META_VER}.deb
