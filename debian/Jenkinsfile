@@ -209,7 +209,8 @@ fi
     }
     stage('Генерация репозитория/удаление истории/пуш в ориджин') {
       // Проверть размер репозитория: поле size по ссылке (КБ):
-      // https://api.github.com/repos/rokashevich/rokashevich
+      // https://api.github.com/repos/rokashevich/rokashevich.github.io
+      // текущее: 15438
       steps {
         sh '''
 cd deb && dpkg-scanpackages . > Packages
@@ -218,6 +219,7 @@ git checkout --orphan newBranch
 git branch -D main
 git branch -m main
 git add -A
+git status
 git config --global user.email "rokashevich@gmail.com"
 git config --global user.name "robot"
 git commit -m"Jenkins Auto Commit"
