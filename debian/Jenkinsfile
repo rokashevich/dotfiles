@@ -30,9 +30,9 @@ _*
 EOF'''
       }
     }
-    stage('Обновление репозитория') {
+    stage('Обновление репозитория и общее') {
       steps {
-        sh 'git fetch origin && git reset --hard origin/main'
+        sh 'env;git fetch origin && git reset --hard origin/main'
       }
     }
     stage('Матричное пакетирование') {
@@ -44,7 +44,7 @@ EOF'''
           }
           axis {
               name 'APP'
-              values 'k9s', 'helm', 'minikube'
+              values 'k9s', 'helm', 'minikube', 'shellcheck'
           }
         }
         environment {
