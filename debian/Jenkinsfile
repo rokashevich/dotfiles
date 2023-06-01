@@ -214,12 +214,13 @@ fi
       steps {
         sh '''
 cd deb && dpkg-scanpackages . > Packages
+echo "Current status before orphan checkout:"
+git status
 
 git checkout --orphan newBranch
 git branch -D main
 git branch -m main
 git add -A
-git status
 git config --global user.email "rokashevich@gmail.com"
 git config --global user.name "robot"
 git commit -m"Jenkins Auto Commit"
