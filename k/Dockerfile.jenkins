@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:latest
+FROM jenkins/jenkins:lts
 USER root
 RUN export DEBIAN_FRONTEND=noninteractive; \
   apt-get update \
@@ -22,4 +22,5 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
   configuration-as-code \
   git \
   job-dsl \
+  permissive-script-security \
   workflow-aggregator

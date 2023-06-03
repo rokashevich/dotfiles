@@ -1,6 +1,39 @@
 // https://www.jenkins.io/doc/book/pipeline/syntax/#environment
 // https://www.jenkins.io/doc/pipeline/steps/workflow-basic-steps/#pipeline-basic-steps
 // Локальная информация: https://[JENKINS URL]/jenkins/pipeline-syntax/globals
+
+import groovy.json.JsonSlurper
+Map tasks = [failFast: false]
+def github_repo_size(String repo) {
+    println("Hello World!")
+    def get = new URL("https://api.github.com/repos/$repo").openConnection();
+    def getRC = get.getResponseCode();
+    println(getRC);
+    if (getRC.equals(200)) {
+        def data = get.getInputStream().getText()
+        def jsonSlurper = new JsonSlurper()
+        def o = jsonSlurper.parseText(data)
+        assert o instanceof Map
+        return o.size // kb
+    }
+    return 0
+}
+def push_to_pushgateway(int size) {
+    def post = new URL("http://pushgateway-svc.my-prometheus:9091/pushgateway/metrics/job/cp19").openConnection();
+    def message = """# TYPE github_repo_size gauge
+# HELP github_repo_size Repo size from github api in KB.
+github_repo_size $size
+"""
+    post.setRequestMethod("POST")
+    post.setDoOutput(true)
+    post.getOutputStream().write(message.getBytes("UTF-8"));
+    def postRC = post.getResponseCode();
+    //println(postRC+">>>"+post.getErrorStream().text);
+    if (postRC.equals(200)) {
+        println(post.getInputStream().getText());
+    }
+}
+
 pipeline {
   agent any
   options {
@@ -211,6 +244,7 @@ fi
       // Проверть размер репозитория: поле size по ссылке (КБ):
       // https://api.github.com/repos/rokashevich/rokashevich.github.io
       // текущее: 15438
+      // TODO: https://stackoverflow.com/questions/4515580/how-do-i-remove-the-old-history-from-a-git-repository
       steps {
         sh '''
 cd deb && dpkg-scanpackages . > Packages
@@ -227,6 +261,13 @@ git commit -m"Jenkins Auto Commit"
 git push -f origin main
 git gc --aggressive --prune=all
         '''
+      }
+    }
+    stage('Пушим в Pushgateway/Prometheus размер github репозитория') {
+      steps {
+        push_to_pushgateway(
+          github_repo_size('rokashevich/rokashevich.github.io')
+        )
       }
     }
   }

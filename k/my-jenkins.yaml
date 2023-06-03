@@ -40,6 +40,7 @@ spec:
       containers:
       - name: jenkins
         image: rokashevich/jenkins
+        imagePullPolicy: Always
         args:
         - --prefix=/jenkins
         - --argumentsRealm.passwd.r=1
@@ -49,7 +50,11 @@ spec:
             cpu: "2000m"
         env:
         - name: JAVA_OPTS
-          value: -Djenkins.install.runSetupWizard=false -Xmx256M -Djava.awt.headless=true
+          value: >-
+            -Xmx256M
+            -Djava.awt.headless=true
+            -Djenkins.install.runSetupWizard=false
+            -Dpermissive-script-security.enabled=no_security
         - name: CASC_JENKINS_CONFIG
           value: /var/jenkins_casc/jenkins.yaml
         - name: JENKINS_HOME_HOST_PATH
@@ -109,6 +114,7 @@ metadata:
   name: casc-configmap
 data:
   # https://jenkinsci.github.io/job-dsl-plugin/
+  # https://plugins.jenkins.io/permissive-script-security/
   jenkins.yaml: |-
     jenkins:
       systemMessage: >-
@@ -161,8 +167,6 @@ data:
             }
           }
           triggers {
-            scm('@daily') {
-              ignorePostCommitHooks()
-            }
+            cron('@daily')
           }
         }
