@@ -21,16 +21,18 @@ spec:
       labels:
         name: jupyter-deploy
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
       - name: jupyter
-        image: jupyter/base-notebook
+        image: rokashevich/jupyter
+        imagePullPolicy: Always
         args:
-        - start-notebook.sh
-        - --ServerApp.token=''
-        - --ServerApp.base_url=/jupyter
-        - --ServerApp.root_dir=/home/jovyan/work
+        - --port=8888
+        - --NotebookApp.base_url=/jupyter
         volumeMounts:
-        - mountPath: /home/jovyan/work
+        - mountPath: /tmp/jupyter
           name: nfs
       volumes:
       - name: nfs
