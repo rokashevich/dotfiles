@@ -64,8 +64,10 @@ alias diff='diff --color=auto'
 alias grep='grep --color=auto'
 alias ls='ls --color=auto'
 alias ip='ip -color=auto'
-alias -- yt-dlp-youtube="yt-dlp -x -o '%(upload_date)s-%(title)s-%(id)s.%(ext)s'"
+alias -- yt-dlp-timestamp="yt-dlp -o '%(upload_date)s-%(title)s-%(id)s.%(ext)s'"
 alias -- yt-dlp-playlist="yt-dlp -o '%(playlist_index)s-%(title)s-%(id)s.%(ext)s'"
+alias -- gl="git log --graph --abbrev-commit \
+  --pretty=format:'%C(bold yellow)%h%Creset%C(yellow)%d%Creset %s %C(bold yellow)%cs %C(bold green)%al%Creset'"
 
 if [ -f ~/.kube/config ];then
 . <(kubectl completion bash)
