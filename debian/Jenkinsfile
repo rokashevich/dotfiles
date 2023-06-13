@@ -223,7 +223,7 @@ fi
     stage('Мета-пакет') {
       steps {
         sh '''#!/bin/bash
-META_VER=1.4.0
+META_VER=1.4.1
 if [[ ! -f deb/rkshvch-desktop-meta_${META_VER}.deb ]]; then
   mkdir -p _meta/DEBIAN
   cat <<X >_meta/DEBIAN/control
@@ -245,6 +245,8 @@ fi
       // https://api.github.com/repos/rokashevich/rokashevich.github.io
       // текущее: 15438
       // TODO: https://stackoverflow.com/questions/4515580/how-do-i-remove-the-old-history-from-a-git-repository
+      //
+      // Попробовать aptly? https://www.aptly.info/
       steps {
         sh '''
 cd deb && dpkg-scanpackages . > Packages
@@ -258,7 +260,7 @@ git add -A
 git config --global user.email "rokashevich@gmail.com"
 git config --global user.name "robot"
 git commit -m"Jenkins Auto Commit"
-git push -f origin main
+git push -v -f origin main
 git gc --aggressive --prune=all
         '''
       }
