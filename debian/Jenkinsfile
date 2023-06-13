@@ -253,6 +253,7 @@ cd deb && dpkg-scanpackages . > Packages
 git config --global user.email "rokashevich@gmail.com"
 git config --global user.name "robot"
 git add -A
+git commit --allow-empty-message -m ""
 git reset $(git commit-tree HEAD^{tree} -m "🎉 Jenkins Auto Commit")
 git push -v -f origin main
 git gc --aggressive --prune=all
