@@ -223,7 +223,7 @@ fi
     stage('Мета-пакет') {
       steps {
         sh '''#!/bin/bash
-META_VER=1.4.1
+META_VER=1.4.0
 if [[ ! -f deb/rkshvch-desktop-meta_${META_VER}.deb ]]; then
   mkdir -p _meta/DEBIAN
   cat <<X >_meta/DEBIAN/control
@@ -250,16 +250,10 @@ fi
       steps {
         sh '''
 cd deb && dpkg-scanpackages . > Packages
-echo "Current status before orphan checkout:"
-git status
-
-git checkout --orphan newBranch
-git branch -D main
-git branch -m main
-git add -A
 git config --global user.email "rokashevich@gmail.com"
 git config --global user.name "robot"
-git commit -m"Jenkins Auto Commit"
+git add -A
+git reset $(git commit-tree HEAD^{tree} -m "🎉 Jenkins Auto Commit")
 git push -v -f origin main
 git gc --aggressive --prune=all
         '''
