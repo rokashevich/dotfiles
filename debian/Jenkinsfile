@@ -248,7 +248,8 @@ fi
       //
       // Попробовать aptly? https://www.aptly.info/
       steps {
-        sh '''
+        sh '''#!/bin/bash
+[[ $(git status -s|wc -l) > 0 ]] && exit 0
 cd deb && dpkg-scanpackages . > Packages
 git config --global user.email "rokashevich@gmail.com"
 git config --global user.name "robot"
