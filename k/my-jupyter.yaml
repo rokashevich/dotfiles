@@ -21,6 +21,8 @@ spec:
       labels:
         name: jupyter-deploy
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: a1
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
@@ -30,9 +32,9 @@ spec:
         imagePullPolicy: Always
         args:
         - --port=8888
-        - --NotebookApp.base_url=/jupyter
+        - --ServerApp.base_url=/jupyter
         volumeMounts:
-        - mountPath: /tmp/jupyter
+        - mountPath: /root/jupyter
           name: nfs
       volumes:
       - name: nfs

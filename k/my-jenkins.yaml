@@ -122,32 +122,6 @@ data:
         https://github.com/rokashevich/dotfiles/tree/master/k
     jobs:
     - script: |
-        pipelineJob('cp19') {
-          definition {
-            cpsScm {
-              scm {
-                git {
-                  remote {
-                      url('https://github.com/rokashevich/cp19.git')
-                  }
-                  extensions {
-                    submoduleOptions {
-                      recursive(true)
-                    }
-                  }
-                }
-              }
-            }
-            logRotator {
-              numToKeep(10)
-            }
-          }
-          triggers {
-            scm('@hourly') {
-              ignorePostCommitHooks()
-            }
-          }
-        }
         pipelineJob('debs') {
           definition {
             cpsScm {
