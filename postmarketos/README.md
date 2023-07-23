@@ -40,7 +40,7 @@ sudo ~/android/platform-tools/fastboot format:ext4 userdata
 pmbootstrap flasher flash_lk2nd
 sudo ~/android/platform-tools/fastboot reboot
 
-sudo ~/android/platform-tools/fastboot flashing lock
+sudo ~/android/platform-tools/fastboot flashing unlock
 
 pmbootstrap install --add lk2nd-msm8953
 pmbootstrap flasher flash_kernel
@@ -91,38 +91,38 @@ nohup /bin/sh -c '\
 EOF
 chmod +x /etc/local.d/my.start
 cat | awk '{print $1}' >/etc/modules <<'EOF'
-af_packet               CONFIG_PACKET
-ipv6                    CONFIG_IPV6
-ipt_REJECT              CONFIG_IP_NF_TARGET_REJECT
-ip_tables               CONFIG_IP_NF_IPTABLES
-iptable_filter          CONFIG_IP_NF_FILTER
-nft_compat              CONFIG_NFT_COMPAT https://www.kernelconfig.io/CONFIG_NFT_COMPAT
-vxlan                   CONFIG_VXLAN
-x_tables                CONFIG_NETFILTER_XTABLES
-xt_conntrack            CONFIG_NETFILTER_XT_MATCH_CONNTRACK
-xt_multiport            CONFIG_NETFILTER_XT_MATCH_MULTIPORT https://www.kernelconfig.io/CONFIG_NETFILTER_XT_MATCH_MULTIPORT
-xt_NFLOG                CONFIG_NETFILTER_XT_TARGET_NFLOG https://www.kernelconfig.io/CONFIG_NETFILTER_XT_TARGET_NFLOG
-xt_tcpudp               CONFIG_NETFILTER_XTABLES
-xt_addrtype             CONFIG_NETFILTER_XT_MATCH_ADDRTYPE
-xt_physdev              CONFIG_NETFILTER_XT_MATCH_PHYSDEV https://www.kernelconfig.io/config_netfilter_xt_match_physdev
+af_packet               CONFIG_PACKET +
+ipv6                    CONFIG_IPV6   +
+ipt_REJECT              CONFIG_IP_NF_TARGET_REJECT +
+ip_tables               CONFIG_IP_NF_IPTABLES +
+iptable_filter          CONFIG_IP_NF_FILTER +
+vxlan                   CONFIG_VXLAN +
+x_tables                CONFIG_NETFILTER_XTABLES +
+xt_conntrack            CONFIG_NETFILTER_XT_MATCH_CONNTRACK +
+xt_tcpudp               CONFIG_NETFILTER_XTABLES +
+xt_addrtype             CONFIG_NETFILTER_XT_MATCH_ADDRTYPE +
 xt_nat                  CONFIG_NETFILTER_XT_NAT
-xt_comment              CONFIG_NETFILTER_XT_MATCH_COMMENT
-xt_limit                CONFIG_NETFILTER_XT_MATCH_LIMIT Core Netfilter configuration>"limit" match support
-xt_MASQUERADE           CONFIG_NETFILTER_XT_TARGET_MASQUERADE
-xt_mark                 CONFIG_NETFILTER_XT_MARK
-nf_conntrack_netlink    CONFIG_NF_CT_NETLINK https://www.kernelconfig.io/CONFIG_NF_CT_NETLINK
-xt_recent               CONFIG_NETFILTER_XT_MATCH_RECENT https://www.kernelconfig.io/CONFIG_NETFILTER_XT_MATCH_RECENT
-xt_statistic            CONFIG_NETFILTER_XT_MATCH_STATISTIC https://www.kernelconfig.io/CONFIG_NETFILTER_XT_MATCH_STATISTIC
-nf_reject_ipv4          https://www.kernelconfig.io/search?q=CONFIG_NF_REJECT
-ip_set                  CONFIG_IP_SET https://www.kernelconfig.io/search?q=ip_set
+xt_comment              CONFIG_NETFILTER_XT_MATCH_COMMENT +
+xt_MASQUERADE           CONFIG_NETFILTER_XT_TARGET_MASQUERADE +
+xt_mark                 CONFIG_NETFILTER_XT_MARK +
+nf_reject_ipv4          CONFIG_NF_REJECT* +
 nfnetlink               CONFIG_NETFILTER_NETLINK
-fuse
+fuse                    CONFIG_FUSE_FS
 ipt_MASQUERADE
-iptable_nat
-nf_nat
-br_netfilter
-overlay
-openvswitch             CONFIG_OPENVSWITCH https://www.kernelconfig.io/config_openvswitch
+iptable_nat             CONFIG_IP_NF_NAT
+nf_nat                  CONFIG_NF_NAT
+br_netfilter            CONFIG_BRIDGE_NETFILTER
+overlay                 CONFIG_OF_OVERLAY
+openvswitch             https://www.kernelconfig.io/CONFIG_OPENVSWITCH
+ip_set                  https://www.kernelconfig.io/CONFIG_IP_SET
+nft_compat              https://www.kernelconfig.io/CONFIG_NFT_COMPAT
+xt_NFLOG                https://www.kernelconfig.io/CONFIG_NETFILTER_XT_TARGET_NFLOG
+nf_conntrack_netlink    https://www.kernelconfig.io/CONFIG_NF_CT_NETLINK
+xt_limit                https://www.kernelconfig.io/CONFIG_NETFILTER_XT_MATCH_LIMIT
+xt_multiport            https://www.kernelconfig.io/CONFIG_NETFILTER_XT_MATCH_MULTIPORT
+xt_physdev              https://www.kernelconfig.io/CONFIG_NETFILTER_XT_MATCH_PHYSDEV
+xt_recent               https://www.kernelconfig.io/CONFIG_NETFILTER_XT_MATCH_RECENT
+xt_statistic            https://www.kernelconfig.io/CONFIG_NETFILTER_XT_MATCH_STATISTIC
 EOF
 cat >> /etc/cgconfig.conf <<'EOF'
 mount {
