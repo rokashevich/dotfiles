@@ -76,3 +76,7 @@ if [ -f ~/.kube/config ];then
   alias k=kubectl
   complete -o default -F __start_kubectl k
 fi
+
+# Без этого не всегда работает opengl из devcontainer vscodа.
+xhost + &>/dev/null
+

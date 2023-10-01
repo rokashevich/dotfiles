@@ -134,7 +134,7 @@ data:
                 }
               }
               lightweight()
-              scriptPath('debian/Jenkinsfile')
+              scriptPath('k/Jenkinsfile')
             }
             logRotator {
               numToKeep(10)
