@@ -1,0 +1,162 @@
+{
+    "search.followSymlinks": false,
+    "markdown.preview.fontSize": 18,
+    "terminal.integrated.fontFamily": "Ubuntu Mono",
+    "terminal.integrated.fontSize": 18,
+    "editor.renderWhitespace": "all",
+    "editor.fontFamily": "Ubuntu Mono",
+    "editor.fontSize": 18,
+    "editor.lineHeight": 18,
+    "editor.formatOnSave": true,
+    "C_Cpp.clang_format_style": "Google",
+    "clang-format.fallbackStyle": "Google",
+    "editor.minimap.enabled": false,
+    "editor.fontLigatures": true,
+    "editor.cursorStyle": "line",
+    "editor.cursorWidth": 4,
+    "cmake.configureOnOpen": false,
+    "files.autoSave": "onFocusChange",
+    "editor.folding": true,
+    "editor.cursorBlinking": "solid",
+    "settingsSync.ignoredSettings": [
+        "editor.fontSize",
+        "editor.lineHeight"
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.formatOnType": true
+    },
+    "python.formatting.provider": "autopep8",
+    "explorer.confirmDragAndDrop": false,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "prettier.jsxBracketSameLine": true,
+    "prettier.jsxSingleQuote": true,
+    "prettier.arrowParens": "avoid",
+    "prettier.semi": false,
+    "prettier.singleQuote": true,
+    "prettier.trailingComma": "none",
+    "workbench.startupEditor": "none",
+    "workbench.editor.tabCloseButton": "off",
+    "workbench.editor.wrapTabs": true,
+    "workbench.editor.tabSizing": "shrink",
+    "explorer.confirmDelete": false,
+    "window.restoreWindows": "none",
+    "redhat.telemetry.enabled": true,
+    "eslint.alwaysShowStatus": true,
+    "eslint.lintTask.enable": true,
+    "[cpp]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "[c]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "security.workspace.trust.untrustedFiles": "open",
+    "workbench.editor.decorations.badges": true,
+    "workbench.editor.decorations.colors": true,
+    "notebook.cellToolbarLocation": {
+        "default": "right",
+        "jupyter-notebook": "left"
+    },
+    "editor.bracketPairColorization.enabled": false,
+    "git.enableSmartCommit": true,
+    "editor.inlineSuggest.enabled": true,
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": false,
+        "plaintext": true,
+        "markdown": false
+    },
+    "extensions.ignoreRecommendations": true,
+    "workbench.colorCustomizations": {
+        "[Default Dark+]": {
+            // 1e1e1e фон редактора
+            // 2d2d2d неактивный таб
+            // 007acc statusbar по умолчанию
+            // 424242 ползунок скрола
+            "editorGroupHeader.tabsBackground": "#2d2d2d",
+            "tab.activeBackground": "#424242",
+            "tab.activeForeground": "#fff",
+            "tab.border": "#2d2d2d",
+            "tab.inactiveForeground": "#ccc",
+            "tab.unfocusedInactiveForeground": "#999",
+            "tab.unfocusedActiveForeground": "#fff",
+            "breadcrumb.background": "#2d2d2d",
+            "statusBar.background": "#424242",
+            "editor.background": "#222",
+            "editor.selectionHighlightBackground": "#900",
+            "editor.wordHighlightBackground": "#424242"
+        },
+        "[Solarized Dark]": {
+            //     "editor.lineHighlightBackground": "#002b36",
+            //     "editor.wordHighlightBackground": "#00212b",
+            //     "widget.border": "#ff0000",
+            //     "contrastBorder": "#ff0000", // под бредкрампсами
+            //     "peekView.border": "#ff0000",
+            //     "sash.hoverBorder": "#ff0000",
+            //     "editorGroup.border": "#ff0000", // вертикальная и снизу редактора
+            //     "panel.dropBorder": "#ff0000",
+            //     "panelSection.border": "#ff0000",
+            //     "panel.border": "#ff0000",
+            //     "editorWidget.border": "#ff0000",
+            //     "editorGroupHeader.border": "#ff0000",
+            //     "focusBorder": "#ff0000",
+            //     "titleBar.border": "#ff0000",
+            //     "editor.rangeHighlightBorder": "#ff0000",
+            //     "editorStickyScroll.border": "#ff0000", //нашел
+            //
+            //     "editorOverviewRuler.border": "#ff0000", //левый скролл
+            "editorLineNumber.foreground": "#304a50",
+            "editorWhitespace.foreground": "#304a50", // пробельные символы
+            "editorIndentGuide.background1": "#002b36", // другие инденты
+            "editorIndentGuide.activeBackground1": "#304a50", // текущий индент
+            "editorIndentGuide.background2": "#ff0000",
+            "editorIndentGuide.background3": "#ff0000",
+        },
+        "[Tomorrow Night Blue]": {
+            "editorLineNumber.foreground": "#3a4b79",
+            "editorLineNumber.activeForeground": "#3a4b79",
+            "editorIndentGuide.background1": "#002451", // другие инденты
+            "editorRuler.foreground": "#3a4b79",
+            "editorStickyScroll.border": "#3a4b79",
+            "scrollbar.shadow": "#3a4b79", //  тень того тчо нашел
+        }
+    },
+    "editor.tokenColorCustomizations": {
+        "[Default Dark+]": {}
+    },
+    "files.trimTrailingWhitespace": true,
+    "[json]": {
+        "editor.quickSuggestions": {
+            "strings": true
+        },
+        "editor.suggest.insertMode": "replace",
+        "gitlens.codeLens.scopes": [
+            "document"
+        ]
+    },
+    "files.associations": {
+        "*tmux.conf": "tmux"
+    },
+    "editor.rulers": [
+        80
+    ],
+    "[plaintext]": {
+        "editor.unicodeHighlight.ambiguousCharacters": false,
+        "editor.unicodeHighlight.invisibleCharacters": false
+    },
+    "git.openRepositoryInParentFolders": "never",
+    "workbench.iconTheme": "Monokai Classic Icons",
+    "workbench.editor.empty.hint": "hidden",
+    "workbench.activityBar.location": "hidden",
+    "workbench.editor.tabActionCloseVisibility": false,
+    "gitlens.ai.experimental.provider": "openai",
+    "gitlens.ai.experimental.openai.model": "gpt-4",
+    "monkeyC.developerKeyPath": "/home/r/garmin/developer_key",
+    "workbench.editorAssociations": {
+        "*.png": "imagePreview.previewEditor"
+    },
+    "cmake.showOptionsMovedNotification": false,
+    "workbench.colorTheme": "Tomorrow Night Blue"
+}

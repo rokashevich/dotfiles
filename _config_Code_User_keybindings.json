@@ -1,0 +1,49 @@
+[
+  {
+    "key": "ctrl+[", // whatever keybinding you want
+    "command": "cursorMove",
+    "args": {
+      "to": "prevBlankLine",
+      "select": false
+    },
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+]",
+    "command": "cursorMove",
+    "args": {
+      "to": "nextBlankLine",
+      "select": false
+    },
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+shift+[", // whatever keybinding you want
+    "command": "cursorMove",
+    "args": {
+      "to": "prevBlankLine",
+      "select": true
+    },
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+shift+]",
+    "command": "cursorMove",
+    "args": {
+      "to": "nextBlankLine",
+      "select": true
+    },
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+alt+m",
+    "command": "workbench.action.toggleEditorWidths"
+  },
+  {
+    "key": "alt+t",
+    "command": "workbench.action.terminal.sendSequence",
+    "args": {
+      "text": "cd ${fileDirname}\u000D"
+    }
+  }
+]
